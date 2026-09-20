@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>كشف حفظ القرآن الكريم</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#F5F6F1;
+    --surface:#FFFFFF;
+    --ink:#1C2620;
+    --muted:#6B7568;
+    --primary:#123524;
+    --primary-light:#1F5C3E;
+    --gold:#B8862E;
+    --gold-soft:#F1E4C4;
+    --border:#E1E3DC;
+    --danger:#A8412B;
+    --danger-soft:#F6E4DF;
+    --done:#1F5C3E;
+    --done-soft:#DEEBE3;
+    --progress-c:#B8862E;
+    --progress-soft:#F5EAD3;
+    --notstarted:#98A093;
+    --notstarted-soft:#EEEFEA;
+    --radius:14px;
+    --shadow:0 1px 2px rgba(18,53,36,.06), 0 8px 24px -12px rgba(18,53,36,.18);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Tajawal',sans-serif;
+    min-height:100vh;
+    line-height:1.6;
+  }
+  h1,h2,h3,.display{
+    font-family:'Amiri',serif;
+    font-weight:700;
+    margin:0;
+  }
+  button, input, select{
+    font-family:inherit;
+    font-size:15px;
+  }
+  a{color:inherit;}
+
+  /* header */
+  .topbar{
+    background:var(--primary);
+    color:#fff;
+    padding:16px 24px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    flex-wrap:wrap;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .brand svg{flex:none;}
+  .brand-text .display{font-size:22px;color:#fff;}
+  .brand-text small{color:var(--gold-soft);font-size:12.5px;letter-spacing:.3px;}
+  .topbar nav{display:flex;gap:8px;flex-wrap:wrap;}
+  .topbar button{
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.25);
+    color:#fff;
+    padding:8px 16px;
+    border-radius:999px;
+    cursor:pointer;
+    transition:background .15s;
+  }
+  .topbar button:hover{background:rgba(255,255,255,.18);}
+  .topbar button.primary-cta{
+    background:var(--gold);
+    border-color:var(--gold);
+    color:#241a06;
+    font-weight:700;
+  }
+
+  main{
+    max-width:980px;
+    margin:0 auto;
+    padding:32px 20px 80px;
+  }
+
+  /* Home */
+  .hero{
+    text-align:center;
+    padding:48px 12px 36px;
+  }
+  .hero h1{font-size:34px;color:var(--primary);}
+  .hero p{color:var(--muted);max-width:480px;margin:12px auto 0;font-size:15.5px;}
+  .choice-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px;
+    margin-top:36px;
+  }
+  @media(max-width:640px){.choice-grid{grid-template-columns:1fr;}}
+  .choice-card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:28px 22px;
+    text-align:right;
+    cursor:pointer;
+    box-shadow:var(--shadow);
+    transition:transform .15s, border-color .15s;
+  }
+  .choice-card:hover{transform:translateY(-2px);border-color:var(--primary-light);}
+  .choice-card .ico{
+    width:44px;height:44px;border-radius:10px;
+    background:var(--done-soft);color:var(--primary);
+    display:flex;align-items:center;justify-content:center;
+    margin-bottom:14px;
+  }
+  .choice-card h3{font-size:19px;color:var(--ink);margin-bottom:6px;}
+  .choice-card p{color:var(--muted);font-size:14px;margin:0;}
+  .honor-link{
+    display:inline-flex;align-items:center;gap:6px;
+    margin-top:28px;color:var(--primary);font-weight:700;
+    text-decoration:none;border-bottom:2px solid var(--gold);
+    padding-bottom:2px;cursor:pointer;background:none;border-top:none;border-left:none;border-right:none;font-size:15px;
+  }
+
+  /* Cards / sections */
+  .card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    padding:22px;
+    box-shadow:var(--shadow);
+    margin-bottom:18px;
+  }
+  .section-head{
+    display:flex;align-items:center;justify-content:space-between;
+    gap:12px;margin-bottom:16px;flex-wrap:wrap;
+  }
+  .section-head h2{font-size:21px;color:var(--primary);}
+  .section-head .sub{color:var(--muted);font-size:13.5px;margin-top:2px;font-family:'Tajawal',sans-serif;font-weight:400;}
+  .btn{
+    background:var(--primary);
+    color:#fff;
+    border:none;
+    padding:10px 18px;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:700;
+    font-size:14.5px;
+  }
+  .btn:hover{background:var(--primary-light);}
+  .btn.secondary{background:var(--surface);color:var(--primary);border:1.5px solid var(--primary);}
+  .btn.secondary:hover{background:var(--done-soft);}
+  .btn.ghost{background:transparent;color:var(--muted);border:1px solid var(--border);}
+  .btn.danger{background:var(--danger);}
+  .btn.danger:hover{background:#8c3421;}
+  .btn.small{padding:6px 12px;font-size:13px;border-radius:8px;}
+  .btn:disabled{opacity:.5;cursor:not-allowed;}
+
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:13.5px;color:var(--muted);margin-bottom:5px;font-weight:500;}
+  .field input, .field select{
+    width:100%;
+    padding:10px 12px;
+    border:1.5px solid var(--border);
+    border-radius:99px;
+    border-radius:9px;
+    background:#fff;
+    color:var(--ink);
+  }
+  .field input:focus, .field select:focus{outline:2px solid var(--primary-light);outline-offset:1px;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media(max-width:560px){.row2{grid-template-columns:1fr;}}
+
+  .breadcrumb{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:13.5px;margin-bottom:16px;flex-wrap:wrap;}
+  .breadcrumb a{cursor:pointer;color:var(--primary);text-decoration:underline;}
+
+  .list-row{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:14px 4px;border-bottom:1px solid var(--border);gap:10px;flex-wrap:wrap;
+  }
+  .list-row:last-child{border-bottom:none;}
+  .list-row .meta{color:var(--muted);font-size:13px;}
+  .name-btn{background:none;border:none;padding:0;font-size:16px;font-weight:700;color:var(--ink);cursor:pointer;text-align:right;}
+  .name-btn:hover{color:var(--primary);}
+
+  .pill{
+    display:inline-block;padding:3px 11px;border-radius:999px;font-size:12.5px;font-weight:700;
+  }
+  .pill.done{background:var(--done-soft);color:var(--done);}
+  .pill.progress{background:var(--progress-soft);color:var(--progress-c);}
+  .pill.notstarted{background:var(--notstarted-soft);color:var(--notstarted);}
+
+  .stat-strip{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:18px;}
+  .stat{
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:16px 20px;flex:1;min-width:130px;box-shadow:var(--shadow);
+  }
+  .stat .num{font-family:'Amiri',serif;font-size:28px;color:var(--primary);font-weight:700;}
+  .stat .lbl{color:var(--muted);font-size:12.5px;margin-top:2px;}
+
+  table{width:100%;border-collapse:collapse;}
+  .table-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:12px;}
+  th,td{padding:10px 12px;text-align:right;font-size:14px;border-bottom:1px solid var(--border);white-space:nowrap;}
+  thead th{background:var(--bg);color:var(--muted);font-weight:700;font-size:12.5px;position:sticky;top:0;}
+  tbody tr:last-child td{border-bottom:none;}
+  tbody tr:hover{background:#FAFAF7;}
+  td select, td input{padding:6px 8px;border-radius:7px;border:1.3px solid var(--border);font-size:13.5px;}
+  .search-box{margin-bottom:12px;}
+
+  .empty{
+    text-align:center;color:var(--muted);padding:36px 12px;font-size:14.5px;
+  }
+  .msg{padding:10px 14px;border-radius:9px;font-size:14px;margin-bottom:14px;}
+  .msg.error{background:var(--danger-soft);color:var(--danger);}
+  .msg.ok{background:var(--done-soft);color:var(--done);}
+
+  .top3{display:flex;gap:12px;flex-wrap:wrap;}
+  .top3 .slot{
+    flex:1;min-width:150px;background:var(--gold-soft);border-radius:12px;padding:14px;text-align:center;
+  }
+  .top3 .slot .rank{font-family:'Amiri',serif;font-size:22px;color:var(--gold);font-weight:700;}
+  .top3 .slot .nm{font-weight:700;margin-top:4px;}
+
+  .round-card{border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;}
+  .round-card .rdate{color:var(--muted);font-size:13px;margin-bottom:10px;}
+
+  footer.tip{
+    text-align:center;color:var(--muted);font-size:12.5px;margin-top:40px;
+  }
+  .modal-backdrop{
+    position:fixed;inset:0;background:rgba(18,53,36,.45);
+    display:flex;align-items:center;justify-content:center;padding:20px;z-index:50;
+  }
+  .modal{
+    background:#fff;border-radius:var(--radius);padding:24px;max-width:420px;width:100%;
+    box-shadow:0 20px 60px rgba(0,0,0,.25);
+  }
+  .modal h3{margin-bottom:14px;color:var(--primary);}
+  .modal-actions{display:flex;gap:10px;margin-top:16px;justify-content:flex-start;}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="brand">
+    <svg width="34" height="34" viewBox="0 0 48 48" fill="none">
+      <path d="M24 4C15 10 10 18 10 27c0 8 6 15 14 17 8-2 14-9 14-17 0-9-5-17-14-23Z" fill="#B8862E" opacity=".9"/>
+      <path d="M24 10c-6 4.5-9.5 10.5-9.5 17 0 6 4 11.3 9.5 13 5.5-1.7 9.5-7 9.5-13 0-6.5-3.5-12.5-9.5-17Z" fill="#123524"/>
+    </svg>
+    <div class="brand-text">
+      <div class="display">كشف حفظ القرآن الكريم</div>
+      <small id="groupNameTag">نظام متابعة الحفظ</small>
+    </div>
+  </div>
+  <nav id="topnav"></nav>
+</div>
+<main id="main"></main>
+<footer class="tip" id="syncStatus">جاري الاتصال بـ Firebase...</footer>
+
+<!-- Firebase SDKs -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+  import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyB-FD_xhkWXsUujfB1KT91S1YLvxYvXbvA",
+    authDomain: "quran-tracker-73ae0.firebaseapp.com",
+    projectId: "quran-tracker-73ae0",
+    storageBucket: "quran-tracker-73ae0.firebasestorage.app",
+    messagingSenderId: "394580178177",
+    appId: "1:394580178177:web:c195fa68c288df767b1700"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const dbStore = getFirestore(app);
+  const docRef = doc(dbStore, "quranTracker", "data");
+
+  // Sync Data
+  window.saveDBToFirebase = async function() {
+    try {
+      await setDoc(docRef, db);
+    } catch (e) {
+      console.error("خطأ في الحفظ:", e);
+    }
+  };
+
+  onSnapshot(docRef, (docSnap) => {
+    const footer = document.getElementById("syncStatus");
+    if (docSnap.exists()) {
+      db = docSnap.data();
+      footer.innerHTML = "متصل ومتزامن مباشرة ✓";
+      footer.style.color = "var(--done)";
+    } else {
+      saveDBToFirebase();
+      footer.innerHTML = "متصل ومتزامن مباشرة ✓ (تم إنشاء الحافظة الأولى)";
+      footer.style.color = "var(--done)";
+    }
+    render();
+  }, (err) => {
+    const footer = document.getElementById("syncStatus");
+    footer.innerHTML = "خطأ في الاتصال بالقاعدة — تأكد من إعداد القواعد (Rules)";
+    footer.style.color = "var(--danger)";
+  });
+</script>
+
+<script>
+/* ---------- Data ---------- */
+const SURAHS = [
+["الفاتحة",7],["البقرة",286],["آل عمران",200],["النساء",176],["المائدة",120],["الأنعام",165],
+["الأعراف",206],["الأنفال",75],["التوبة",129],["يونس",109],["هود",123],["يوسف",111],
+["الرعد",43],["إبراهيم",52],["الحجر",99],["النحل",128],["الإسراء",111],["الكهف",110],
+["مريم",98],["طه",135],["الأنبياء",112],["الحج",78],["المؤمنون",118],["النور",64],
+["الفرقان",77],["الشعراء",227],["النمل",93],["القصص",88],["العنكبوت",69],["الروم",60],
+["لقمان",34],["السجدة",30],["الأحزاب",73],["سبأ",54],["فاطر",45],["يس",83],
+["الصافات",182],["ص",88],["الزمر",75],["غافر",85],["فصلت",54],["الشورى",53],
+["الزخرف",89],["الدخان",59],["الجاثية",37],["الأحقاف",35],["محمد",38],["الفتح",29],
+["الحجرات",18],["ق",45],["الذاريات",60],["الطور",49],["النجم",62],["القمر",55],
+["الرحمن",78],["الواقعة",96],["الحديد",29],["المجادلة",22],["الحشر",24],["الممتحنة",13],
+["الصف",14],["الجمعة",11],["المنافقون",11],["التغابن",18],["الطلاق",12],["التحريم",12],
+["الملك",30],["القلم",52],["الحاقة",52],["المعارج",44],["نوح",28],["الجن",28],
+["المزمل",20],["المدثر",56],["القيامة",40],["الإنسان",31],["المرسلات",50],["النبأ",40],
+["النازعات",46],["عبس",42],["التكوير",29],["الإنفطار",19],["المطففين",36],["الإنشقاق",25],
+["البروج",22],["الطارق",17],["الأعلى",19],["الغاشية",26],["الفجر",30],["البلد",20],
+["الشمس",15],["الليل",21],["الضحى",11],["الشرح",8],["التين",8],["العلق",19],
+["القدر",5],["البينة",8],["الزلزلة",8],["العاديات",11],["القارعة",11],["التكاثر",8],
+["العصر",3],["الهمزة",9],["الفيل",5],["قريش",4],["الماعون",7],["الكوثر",3],
+["الكافرون",6],["النصر",3],["المسد",5],["الإخلاص",4],["الفلق",5],["الناس",6]
+].map((s,i)=>({idx:i, name:s[0], ayat:s[1]}));
+
+const GRADES = ["ممتاز","جيد جدًا","جيد","مقبول","ضعيف"];
+const STATUS = {not_started:"لم يبدأ", in_progress:"تحت الحفظ", done:"تم الحفظ"};
+
+let db = {
+  admins:[{username:"admin", password:"admin123", name:"المشرف العام"}],
+  groups:[],
+  rounds:[]
+};
+
+function save(){
+  if(window.saveDBToFirebase) window.saveDBToFirebase();
+}
+
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+function esc(str){ return String(str||'').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+/* ---------- App state ---------- */
+let state = { view:"home", adminUser:null, groupId:null, studentId:null, publicPass:null, err:null };
+
+function go(view, extra){ state = Object.assign({view, err:null}, extra||{}, {adminUser:state.adminUser}); render(); }
+
+function studentStats(student){
+  let done=0, inprog=0, notstarted=0;
+  SURAHS.forEach(s=>{
+    const st = (student.progress && student.progress[s.idx]) ? student.progress[s.idx].status : "not_started";
+    if(st==="done") done++; else if(st==="in_progress") inprog++; else notstarted++;
+  });
+  return {done, inprog, notstarted};
+}
+
+/* ---------- Render root ---------- */
+function render(){
+  renderNav();
+  const m = document.getElementById("main");
+  if(!m) return;
+  m.innerHTML = "";
+  const view = {
+    home: renderHome,
+    honor: renderHonor,
+    publicGroups: renderPublicGroups,
+    publicStudents: renderPublicStudents,
+    publicPassword: renderPublicPassword,
+    publicReport: renderPublicReport,
+    adminLogin: renderAdminLogin,
+    adminHome: renderAdminHome,
+    adminGroup: renderAdminGroup,
+    adminStudent: renderAdminStudent,
+    adminRounds: renderAdminRounds,
+    adminAdmins: renderAdminAdmins,
+  }[state.view] || renderHome;
+  view(m);
+}
+
+function renderNav(){
+  const nav = document.getElementById("topnav");
+  if(!nav) return;
+  nav.innerHTML = "";
+  if(state.view!=="home"){
+    const home = document.createElement("button");
+    home.textContent = "الرئيسية";
+    home.onclick = ()=>go("home");
+    nav.appendChild(home);
+  }
+  if(state.adminUser){
+    const dash = document.createElement("button");
+    dash.textContent = "لوحة المسؤول";
+    dash.onclick = ()=>go("adminHome");
+    nav.appendChild(dash);
+    const out = document.createElement("button");
+    out.textContent = "تسجيل الخروج ("+state.adminUser.name+")";
+    out.className="primary-cta";
+    out.onclick = ()=>{ state.adminUser=null; go("home"); };
+    nav.appendChild(out);
+  } else if(state.view!=="adminLogin"){
+    const login = document.createElement("button");
+    login.textContent = "دخول المسؤولين";
+    login.onclick = ()=>go("adminLogin");
+    nav.appendChild(login);
+  }
+}
+
+/* ---------- Home ---------- */
+function renderHome(m){
+  m.innerHTML = `
+    <div class="hero">
+      <h1>متابعة حفظ القرآن الكريم</h1>
+      <p>سجّل تقدّم الطلاب في الحفظ سورةً سورة، تابع تقديراتهم، وأعلن أوائل كل دورة — بمكان واحد.</p>
+    </div>
+    <div class="choice-grid">
+      <div class="choice-card" id="cardAdmin">
+        <div class="ico">${iconAdmin()}</div>
+        <h3>دخول المسؤولين</h3>
+        <p>إدارة المجموعات والطلاب وتسجيل التقدّم والتقديرات.</p>
+      </div>
+      <div class="choice-card" id="cardPublic">
+        <div class="ico">${iconSearch()}</div>
+        <h3>متابعة طالب</h3>
+        <p>اختر المجموعة والطالب، وأدخل كلمة سر الطالب لعرض تقريره.</p>
+      </div>
+    </div>
+    <div style="text-align:center;">
+      <button class="honor-link" id="honorBtn">${iconStar()} لوحة أوائل الدورات</button>
+    </div>
+  `;
+  m.querySelector("#cardAdmin").onclick = ()=> go(state.adminUser? "adminHome":"adminLogin");
+  m.querySelector("#cardPublic").onclick = ()=> go("publicGroups");
+  m.querySelector("#honorBtn").onclick = ()=> go("honor");
+}
+
+function iconAdmin(){return `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Z"/><path d="M4 20c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>`;}
+function iconSearch(){return `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>`;}
+function iconStar(){return `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.6 7.1.7-5.4 4.7 1.7 7-6.3-3.9L5.7 21l1.7-7-5.4-4.7 7.1-.7L12 2Z"/></svg>`;}
+
+/* ---------- Honor board ---------- */
+function renderHonor(m){
+  const rounds = [...(db.rounds||[])].sort((a,b)=> (b.date||"").localeCompare(a.date||""));
+  m.innerHTML = `
+    <div class="breadcrumb"><a id="bHome">الرئيسية</a> / لوحة أوائل الدورات</div>
+    <div class="section-head"><div><h2>أوائل الدورات</h2><div class="sub">سجل تكريم الأوائل في كل دورة</div></div></div>
+    <div id="roundsList"></div>
+  `;
+  m.querySelector("#bHome").onclick=()=>go("home");
+  const list = m.querySelector("#roundsList");
+  if(rounds.length===0){ list.innerHTML = `<div class="card empty">لا توجد دورات مسجّلة بعد.</div>`; return; }
+  rounds.forEach(r=>{
+    const el = document.createElement("div");
+    el.className="card round-card";
+    el.innerHTML = `
+      <h3 style="color:var(--primary);font-size:17px;">${esc(r.name)}</h3>
+      <div class="rdate">${esc(r.date||"")}</div>
+      <div class="top3">
+        ${["الأول","الثاني","الثالث"].map((lbl,i)=>`
+          <div class="slot"><div class="rank">${lbl}</div><div class="nm">${esc((r.top&&r.top[i])||"—")}</div></div>
+        `).join("")}
+      </div>
+    `;
+    list.appendChild(el);
+  });
+}
+
+/* ---------- Public views ---------- */
+function renderPublicGroups(m){
+  m.innerHTML = `
+    <div class="breadcrumb"><a id="bHome">الرئيسية</a> / متابعة طالب</div>
+    <div class="section-head"><div><h2>اختر المجموعة</h2><div class="sub">ثم اختر اسم الطالب لعرض تقريره</div></div></div>
+    <div class="card" id="grpList"></div>
+  `;
+  m.querySelector("#bHome").onclick=()=>go("home");
+  const box = m.querySelector("#grpList");
+  if(!db.groups || db.groups.length===0){ box.innerHTML=`<div class="empty">لا توجد مجموعات مضافة بعد.</div>`; return; }
+  db.groups.forEach(g=>{
+    const row=document.createElement("div");
+    row.className="list-row";
+    row.innerHTML=`<button class="name-btn">${esc(g.name)}</button><span class="meta">${g.students?g.students.length:0} طالب</span>`;
+    row.querySelector("button").onclick=()=> go("publicStudents", {groupId:g.id});
+    box.appendChild(row);
+  });
+}
+
+function renderPublicStudents(m){
+  const g = db.groups && db.groups.find(x=>x.id===state.groupId);
+  if(!g){ go("publicGroups"); return; }
+  m.innerHTML = `
+    <div class="breadcrumb"><a id="bHome">الرئيسية</a> / <a id="bGrp">متابعة طالب</a> / ${esc(g.name)}</div>
+    <div class="section-head"><div><h2>${esc(g.name)}</h2><div class="sub">اختر اسم الطالب</div></div></div>
+    <div class="card" id="stList"></div>
+  `;
+  m.querySelector("#bHome").onclick=()=>go("home");
+  m.querySelector("#bGrp").onclick=()=>go("publicGroups");
+  const box = m.querySelector("#stList");
+  if(!g.students || g.students.length===0){ box.innerHTML=`<div class="empty">لا يوجد طلاب في هذه المجموعة بعد.</div>`; return; }
+  g.students.forEach(s=>{
+    const row=document.createElement("div");
+    row.className="list-row";
+    row.innerHTML=`<button class="name-btn">${esc(s.name)}</button>`;
+    row.querySelector("button").onclick=()=> go("publicPassword", {groupId:g.id, studentId:s.id});
+    box.appendChild(row);
+  });
+}
+
+function renderPublicPassword(m){
+  const g = db.groups && db.groups.find(x=>x.id===state.groupId);
+  const s = g && g.students && g.students.find(x=>x.id===state.studentId);
+  if(!g||!s){ go("publicGroups"); return; }
+  m.innerHTML = `
+    <div class="breadcrumb"><a id="bHome">الرئيسية</a> / <a id="bGrp">متابعة طالب</a> / ${esc(g.name)} / ${esc(s.name)}</div>
+    <div class="card" style="max-width:380px;margin:0 auto;">
+      <div class="section-head"><h2>كلمة سر الطالب</h2></div>
+      ${state.err? `<div class="msg error">${esc(state.err)}</div>`:""}
+      <div class="field"><label>أدخل كلمة السر الخاصة بـ${esc(s.name)}</label><input id="pwIn" type="password" autofocus></div>
+      <button class="btn" id="pwGo" style="width:100%;">عرض التقرير</button>
+    </div>
+  `;
+  m.querySelector("#bHome").onclick=()=>go("home");
+  m.querySelector("#bGrp").onclick=()=>go("publicGroups");
+  const submit = ()=>{
+    const val = m.querySelector("#pwIn").value;
+    if(val === s.password){ go("publicReport", {groupId:g.id, studentId:s.id}); }
+    else { state.err="كلمة السر غير صحيحة."; render(); }
+  };
+  m.querySelector("#pwGo").onclick = submit;
+  m.querySelector("#pwIn").addEventListener("keydown", e=>{ if(e.key==="Enter") submit(); });
+}
+
+function renderPublicReport(m){
+  const g = db.groups && db.groups.find(x=>x.id===state.groupId);
+  const s = g && g.students && g.students.find(x=>x.id===state.studentId);
+  if(!g||!s){ go("publicGroups"); return; }
+  const stats = studentStats(s);
+  m.innerHTML = `
+    <div class="breadcrumb"><a id="bHome">الرئيسية</a> / ${esc(g.name)} / ${esc(s.name)}</div>
+    <div class="section-head"><div><h2>${esc(s.name)}</h2><div class="sub">${esc(g.name)} · التحق بتاريخ ${esc(s.joinDate||"—")}</div></div></div>
+    <div class="stat-strip">
+      <div class="stat"><div class="num">${stats.done}</div><div class="lbl">سورة محفوظة</div></div>
+      <div class="stat"><div class="num">${stats.inprog}</div><div class="lbl">قيد الحفظ</div></div>
+      <div class="stat"><div class="num">${stats.notstarted}</div><div class="lbl">سور متبقية</div></div>
+    </div>
+    <div class="card">
+      <div class="search-box"><input id="srch" placeholder="ابحث عن سورة..." style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;"></div>
+      <div class="table-wrap"><table id="reportTable">
+        <thead><tr><th>السورة</th><th>عدد الآيات</th><th>الحالة</th><th>وصل إلى آية</th><th>التقدير</th></tr></thead>
+        <tbody></tbody>
+      </table></div>
+    </div>
+  `;
+  m.querySelector("#bHome").onclick=()=>go("home");
+  fillReportTable(m, s);
+  m.querySelector("#srch").addEventListener("input", e=> fillReportTable(m, s, e.target.value));
+}
+
+function fillReportTable(m, s, filter){
+  const tbody = m.querySelector("#reportTable tbody");
+  if(!tbody) return;
+  tbody.innerHTML="";
+  const f = (filter||"").trim();
+  SURAHS.filter(sur=> !f || sur.name.includes(f)).forEach(sur=>{
+    const p = (s.progress && s.progress[sur.idx]) || {status:"not_started"};
+    const pillClass = p.status==="done"?"done":p.status==="in_progress"?"progress":"notstarted";
+    const tr=document.createElement("tr");
+    tr.innerHTML = `
+      <td>${esc(sur.name)}</td>
+      <td>${sur.ayat}</td>
+      <td><span class="pill ${pillClass}">${STATUS[p.status]}</span></td>
+      <td>${p.status==="in_progress" ? (p.ayah||"—") : (p.status==="done" ? sur.ayat : "—")}</td>
+      <td>${p.grade? esc(p.grade) : "—"}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+/* ---------- Admin Login ---------- */
+function renderAdminLogin(m){
+  m.innerHTML = `
+    <div class="card" style="max-width:380px;margin:40px auto 0;">
+      <div class="section-head"><h2>دخول المسؤولين</h2></div>
+      ${state.err? `<div class="msg error">${esc(state.err)}</div>`:""}
+      <div class="field"><label>اسم المستخدم</label><input id="u" autofocus></div>
+      <div class="field"><label>كلمة السر</label><input id="p" type="password"></div>
+      <button class="btn" id="go" style="width:100%;">دخول</button>
+    </div>
+  `;
+  const submit=()=>{
+    const u = m.querySelector("#u").value.trim();
+    const p = m.querySelector("#p").value;
+    const found = (db.admins||[]).find(a=>a.username===u && a.password===p);
+    if(found){ state.adminUser=found; go("adminHome"); }
+    else { state.err="اسم المستخدم أو كلمة السر غير صحيحة."; render(); }
+  };
+  m.querySelector("#go").onclick=submit;
+  m.querySelector("#p").addEventListener("keydown", e=>{ if(e.key==="Enter") submit(); });
+}
+
+/* ---------- Admin Home ---------- */
+function renderAdminHome(m){
+  if(!state.adminUser){ go("adminLogin"); return; }
+  m.innerHTML = `
+    <div class="section-head">
+      <div><h2>المجموعات</h2><div class="sub">مرحبًا ${esc(state.adminUser.name)} — أضف مجموعة أو افتح إحداها</div></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn secondary" id="btnRounds">إدارة الدورات</button>
+        <button class="btn secondary" id="btnAdmins">إدارة المسؤولين</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="row2" style="align-items:end;margin-bottom:6px;">
+        <div class="field" style="margin-bottom:0;"><label>اسم المجموعة الجديدة</label><input id="newGrp" placeholder="مثال: مجموعة الفجر"></div>
+        <button class="btn" id="addGrp">إضافة مجموعة</button>
+      </div>
+    </div>
+    <div id="groupsList"></div>
+  `;
+  m.querySelector("#btnRounds").onclick=()=>go("adminRounds");
+  m.querySelector("#btnAdmins").onclick=()=>go("adminAdmins");
+  m.querySelector("#addGrp").onclick=()=>{
+    const val = m.querySelector("#newGrp").value.trim();
+    if(!val) return;
+    if(!db.groups) db.groups = [];
+    db.groups.push({id:uid(), name:val, createdAt:new Date().toISOString().slice(0,10), students:[]});
+    save(); go("adminHome");
+  };
+  const list = m.querySelector("#groupsList");
+  if(!db.groups || db.groups.length===0){
+    list.innerHTML = `<div class="card empty">لا توجد مجموعات بعد — أضف أول مجموعة أعلاه.</div>`;
+    return;
+  }
+  db.groups.forEach(g=>{
+    const el=document.createElement("div");
+    el.className="card list-row";
+    el.innerHTML=`
+      <div>
+        <button class="name-btn">${esc(g.name)}</button>
+        <div class="meta">${g.students?g.students.length:0} طالب · أُنشئت ${esc(g.createdAt||"")}</div>
+      </div>
+      <button class="btn ghost small" data-del>حذف المجموعة</button>
+    `;
+    el.querySelector(".name-btn").onclick=()=>go("adminGroup",{groupId:g.id});
+    el.querySelector("[data-del]").onclick=()=>{
+      if(confirm(`حذف "${g.name}" وكل بيانات طلابها؟`)){
+        db.groups = db.groups.filter(x=>x.id!==g.id); save(); go("adminHome");
+      }
+    };
+    list.appendChild(el);
+  });
+}
+
+/* ---------- Admin Group ---------- */
+function renderAdminGroup(m){
+  if(!state.adminUser){ go("adminLogin"); return; }
+  const g = db.groups && db.groups.find(x=>x.id===state.groupId);
+  if(!g){ go("adminHome"); return; }
+  m.innerHTML = `
+    <div class="breadcrumb"><a id="bHome">لوحة المسؤول</a> / ${esc(g.name)}</div>
+    <div class="section-head"><div><h2>${esc(g.name)}</h2><div class="sub">إدارة طلاب هذه المجموعة</div></div></div>
+    <div class="card">
+      <div class="row2">
+        <div class="field"><label>اسم الطالب</label><input id="nName"></div>
+        <div class="field"><label>تاريخ الالتحاق</label><input id="nDate" type="date"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>كلمة سر الطالب</label><input id="nPass" placeholder="لعرض تقريره لاحقًا"></div>
+        <div class="field" style="display:flex;align-items:end;"><button class="btn" id="addSt" style="width:100%;">إضافة طالب</button></div>
+      </div>
+    </div>
+    <div id="stList"></div>
+  `;
+  m.querySelector("#bHome").onclick=()=>go("adminHome");
+  m.querySelector("#addSt").onclick=()=>{
+    const name = m.querySelector("#nName").value.trim();
+    const date = m.querySelector("#nDate").value;
+    const pass = m.querySelector("#nPass").value.trim();
+    if(!name || !pass){ alert("الاسم وكلمة السر مطلوبان."); return; }
+    if(!g.students) g.students = [];
+    g.students.push({id:uid(), name, joinDate:date, password:pass, progress:{}});
+    save(); go("adminGroup",{groupId:g.id});
+  };
+  const list = m.querySelector("#stList");
+  if(!g.students || g.students.length===0){ list.innerHTML=`<div class="card empty">لا يوجد طلاب بعد.</div>`; return; }
+  g.students.forEach(s=>{
+    const stats = studentStats(s);
+    const el=document.createElement("div");
+    el.className="card list-row";
+    el.innerHTML=`
+      <div>
+        <button class="name-btn">${esc(s.name)}</button>
+        <div class="meta">${stats.done} محفوظة · ${stats.inprog} قيد الحفظ · ${stats.notstarted} متبقية</div>
+      </div>
+      <button class="btn ghost small" data-del>حذف</button>
+    `;
+    el.querySelector(".name-btn").onclick=()=>go("adminStudent",{groupId:g.id, studentId:s.id});
+    el.querySelector("[data-del]").onclick=()=>{
+      if(confirm(`حذف الطالب "${s.name}"؟`)){
+        g.students = g.students.filter(x=>x.id!==s.id); save(); go("adminGroup",{groupId:g.id});
+      }
+    };
+    list.appendChild(el);
+  });
+}
+
+/* ---------- Admin Student Editor ---------- */
+function renderAdminStudent(m){
+  if(!state.adminUser){ go("adminLogin"); return; }
+  const g = db.groups && db.groups.find(x=>x.id===state.groupId);
+  const s = g && g.students && g.students.find(x=>x.id===state.studentId);
+  if(!g||!s){ go("adminHome"); return; }
+  const stats = studentStats(s);
+  m.innerHTML = `
+    <div class="breadcrumb"><a id="bHome">لوحة المسؤول</a> / <a id="bGrp">${esc(g.name)}</a> / ${esc(s.name)}</div>
+    <div class="section-head">
+      <div><h2>${esc(s.name)}</h2><div class="sub">التحق بتاريخ ${esc(s.joinDate||"—")} · كلمة السر: ${esc(s.password)}</div></div>
+      <button class="btn secondary small" id="editInfo">تعديل البيانات</button>
+    </div>
+    <div class="stat-strip">
+      <div class="stat"><div class="num">${stats.done}</div><div class="lbl">سورة محفوظة</div></div>
+      <div class="stat"><div class="num">${stats.inprog}</div><div class="lbl">قيد الحفظ</div></div>
+      <div class="stat"><div class="num">${stats.notstarted}</div><div class="lbl">سور متبقية</div></div>
+    </div>
+    <div class="card">
+      <div class="search-box"><input id="srch" placeholder="ابحث عن سورة..." style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;"></div>
+      <div class="table-wrap"><table id="editTable">
+        <thead><tr><th>السورة</th><th>عدد الآيات</th><th>الحالة</th><th>وصل إلى آية</th><th>التقدير</th></tr></thead>
+        <tbody></tbody>
+      </table></div>
+    </div>
+  `;
+  m.querySelector("#bHome").onclick=()=>go("adminHome");
+  m.querySelector("#bGrp").onclick=()=>go("adminGroup",{groupId:g.id});
+  m.querySelector("#editInfo").onclick=()=>openEditInfoModal(g,s);
+  fillEditTable(m, g, s);
+  m.querySelector("#srch").addEventListener("input", e=> fillEditTable(m, g, s, e.target.value));
+}
+
+function fillEditTable(m, g, s, filter){
+  const tbody = m.querySelector("#editTable tbody");
+  if(!tbody) return;
+  tbody.innerHTML="";
+  const f=(filter||"").trim();
+  SURAHS.filter(sur=> !f || sur.name.includes(f)).forEach(sur=>{
+    if(!s.progress) s.progress={};
+    const p = s.progress[sur.idx] || {status:"not_started", ayah:"", grade:""};
+    const tr=document.createElement("tr");
+    tr.innerHTML = `
+      <td>${esc(sur.name)}</td>
+      <td>${sur.ayat}</td>
+      <td>
+        <select data-role="status">
+          <option value="not_started" ${p.status==="not_started"?"selected":""}>لم يبدأ</option>
+          <option value="in_progress" ${p.status==="in_progress"?"selected":""}>تحت الحفظ</option>
+          <option value="done" ${p.status==="done"?"selected":""}>تم الحفظ</option>
+        </select>
+      </td>
+      <td><input data-role="ayah" type="number" min="1" max="${sur.ayat}" style="width:70px;" value="${p.status==="in_progress"?(p.ayah||""):""}" ${p.status!=="in_progress"?"disabled":""}></td>
+      <td>
+        <select data-role="grade">
+          <option value="">—</option>
+          ${GRADES.map(gr=>`<option value="${gr}" ${p.grade===gr?"selected":""}>${gr}</option>`).join("")}
+        </select>
+      </td>
+    `;
+    
+    const statusSel = tr.querySelector('[data-role="status"]');
+    const ayahIn = tr.querySelector('[data-role="ayah"]');
+    const gradeSel = tr.querySelector('[data-role="grade"]');
+
+    statusSel.onchange = ()=>{
+      const val = statusSel.value;
+      if(!s.progress[sur.idx]) s.progress[sur.idx] = {};
+      s.progress[sur.idx].status = val;
+      if(val==="in_progress"){
+        ayahIn.disabled = false;
+      } else {
+        ayahIn.disabled = true;
+        if(val==="done") s.progress[sur.idx].ayah = sur.ayat;
+        else s.progress[sur.idx].ayah = "";
+      }
+      save();
+    };
+
+    ayahIn.onchange = ()=>{
+      if(!s.progress[sur.idx]) s.progress[sur.idx] = {};
+      s.progress[sur.idx].ayah = ayahIn.value;
+      save();
+    };
+
+    gradeSel.onchange = ()=>{
+      if(!s.progress[sur.idx]) s.progress[sur.idx] = {};
+      s.progress[sur.idx].grade = gradeSel.value;
+      save();
+    };
+
+    tbody.appendChild(tr);
+  });
+}
+
+function openEditInfoModal(g, s){
+  const modal = document.createElement("div");
+  modal.className = "modal-backdrop";
+  modal.innerHTML = `
+    <div class="modal">
+      <h3>تعديل بيانات الطالب</h3>
+      <div class="field"><label>الاسم</label><input id="mName" value="${esc(s.name)}"></div>
+      <div class="field"><label>تاريخ الالتحاق</label><input id="mDate" type="date" value="${esc(s.joinDate||"")}"></div>
+      <div class="field"><label>كلمة السر</label><input id="mPass" value="${esc(s.password)}"></div>
+      <div class="modal-actions">
+        <button class="btn" id="mSave">حفظ</button>
+        <button class="btn ghost" id="mCancel">إلغاء</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  modal.querySelector("#mCancel").onclick = ()=> modal.remove();
+  modal.querySelector("#mSave").onclick = ()=>{
+    s.name = modal.querySelector("#mName").value.trim();
+    s.joinDate = modal.querySelector("#mDate").value;
+    s.password = modal.querySelector("#mPass").value.trim();
+    save(); modal.remove(); go("adminStudent",{groupId:g.id, studentId:s.id});
+  };
+}
+
+/* ---------- Admin Rounds ---------- */
+function renderAdminRounds(m){
+  if(!state.adminUser){ go("adminLogin"); return; }
+  m.innerHTML = `
+    <div class="breadcrumb"><a id="bHome">لوحة المسؤول</a> / إدارة الدورات</div>
+    <div class="section-head"><div><h2>إدارة الدورات والأوائل</h2></div></div>
+    <div class="card">
+      <div class="field"><label>اسم الدورة</label><input id="rName" placeholder="مثال: الدورة الصيفية 2026"></div>
+      <div class="field"><label>التاريخ</label><input id="rDate" type="date"></div>
+      <div class="row2">
+        <div class="field"><label>الأول</label><input id="rTop1"></div>
+        <div class="field"><label>الثاني</label><input id="rTop2"></div>
+      </div>
+      <div class="field"><label>الثالث</label><input id="rTop3"></div>
+      <button class="btn" id="addR">إضافة الدورة</button>
+    </div>
+    <div id="rList"></div>
+  `;
+  m.querySelector("#bHome").onclick=()=>go("adminHome");
+  m.querySelector("#addR").onclick=()=>{
+    const name = m.querySelector("#rName").value.trim();
+    const date = m.querySelector("#rDate").value;
+    const top1 = m.querySelector("#rTop1").value.trim();
+    const top2 = m.querySelector("#rTop2").value.trim();
+    const top3 = m.querySelector("#rTop3").value.trim();
+    if(!name){ alert("اسم الدورة مطلوب."); return; }
+    if(!db.rounds) db.rounds = [];
+    db.rounds.push({id:uid(), name, date, top:[top1, top2, top3]});
+    save(); go("adminRounds");
+  };
+  const list = m.querySelector("#rList");
+  if(!db.rounds || db.rounds.length===0){ list.innerHTML = `<div class="card empty">لا توجد دورات بعد.</div>`; return; }
+  db.rounds.forEach(r=>{
+    const el = document.createElement("div");
+    el.className = "card list-row";
+    el.innerHTML = `
+      <div>
+        <strong>${esc(r.name)}</strong> (${esc(r.date||"")})
+        <div class="meta">الأوائل: ${r.top.map(x=>esc(x||"—")).join(" - ")}</div>
+      </div>
+      <button class="btn ghost small" data-del>حذف</button>
+    `;
+    el.querySelector("[data-del]").onclick=()=>{
+      if(confirm(`حذف دورة "${r.name}"؟`)){
+        db.rounds = db.rounds.filter(x=>x.id!==r.id); save(); go("adminRounds");
+      }
+    };
+    list.appendChild(el);
+  });
+}
+
+/* ---------- Admin Admins ---------- */
+function renderAdminAdmins(m){
+  if(!state.adminUser){ go("adminLogin"); return; }
+  m.innerHTML = `
+    <div class="breadcrumb"><a id="bHome">لوحة المسؤول</a> / إدارة المسؤولين</div>
+    <div class="section-head"><div><h2>المسؤولين</h2></div></div>
+    <div class="card">
+      <div class="row2">
+        <div class="field"><label>اسم المسؤول</label><input id="aName"></div>
+        <div class="field"><label>اسم المستخدم</label><input id="aUser"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>كلمة السر</label><input id="aPass" type="password"></div>
+        <div class="field" style="display:flex;align-items:end;"><button class="btn" id="addA" style="width:100%;">إضافة مسؤول</button></div>
+      </div>
+    </div>
+    <div id="aList"></div>
+  `;
+  m.querySelector("#bHome").onclick=()=>go("adminHome");
+  m.querySelector("#addA").onclick=()=>{
+    const name = m.querySelector("#aName").value.trim();
+    const username = m.querySelector("#aUser").value.trim();
+    const password = m.querySelector("#aPass").value;
+    if(!name || !username || !password){ alert("جميع الحقول مطلوبة."); return; }
+    if(!db.admins) db.admins = [];
+    db.admins.push({name, username, password});
+    save(); go("adminAdmins");
+  };
+  const list = m.querySelector("#aList");
+  (db.admins||[]).forEach(a=>{
+    const el = document.createElement("div");
+    el.className = "card list-row";
+    el.innerHTML = `
+      <div>
+        <strong>${esc(a.name)}</strong> (${esc(a.username)})
+      </div>
+      ${db.admins.length>1? `<button class="btn ghost small" data-del>حذف</button>`:""}
+    `;
+    const delBtn = el.querySelector("[data-del]");
+    if(delBtn){
+      delBtn.onclick=()=>{
+        if(confirm(`حذف المسؤول "${a.name}"؟`)){
+          db.admins = db.admins.filter(x=>x.username!==a.username); save(); go("adminAdmins");
+        }
+      };
+    }
+    list.appendChild(el);
+  });
+}
+
+render();
+</script>
+</body>
+</html>
