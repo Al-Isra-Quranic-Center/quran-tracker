@@ -3,89 +3,116 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مركز الإسراء القرآني - متابعة الحفظ</title>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap" rel="stylesheet">
+    <title>مركز الإسراء القرآني - نظام متابعة الحفظ والتثبيت</title>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #1b4332;
-            --secondary-color: #2d6a4f;
-            --accent-color: #d4af37;
-            --bg-color: #f8f9fa;
-            --text-color: #212529;
+            --primary: #1b4332;
+            --primary-light: #2d6a4f;
+            --accent: #d4af37;
+            --bg: #f4f6f8;
+            --card-bg: #ffffff;
+            --text: #2b2d42;
+            --success: #2a9d8f;
+            --warning: #e9c46a;
+            --danger: #e76f51;
         }
-        body {
-            font-family: 'Tajawal', sans-serif;
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 20px;
-            direction: rtl;
-        }
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            background: #ffffff;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-        }
+
+        * { box-sizing: border-box; font-family: 'Tajawal', sans-serif; }
+        body { background-color: var(--bg); color: var(--text); margin: 0; padding: 15px; direction: rtl; }
+        .container { max-width: 1100px; margin: 0 auto; }
+
         header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
             text-align: center;
-            border-bottom: 2px solid var(--accent-color);
-            padding-bottom: 15px;
-            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+            position: relative;
         }
-        h1 {
-            color: var(--primary-color);
-            margin: 0 0 10px 0;
-        }
-        .status-bar {
+        header h1 { margin: 0 0 5px 0; font-size: 1.8rem; color: var(--accent); }
+        header p { margin: 0; opacity: 0.9; }
+
+        .status-badge {
             display: inline-block;
-            padding: 6px 16px;
+            padding: 4px 12px;
             border-radius: 20px;
-            font-size: 0.9em;
-            font-weight: bold;
+            font-size: 0.85rem;
+            margin-top: 10px;
+            background: rgba(255,255,255,0.2);
         }
-        .status-online { background-color: #d4edda; color: #155724; }
-        .status-offline { background-color: #f8d7da; color: #721c24; }
+
         .card {
-            background: #fff;
-            border: 1px solid #e9ecef;
-            border-radius: 8px;
+            background: var(--card-bg);
+            border-radius: 10px;
             padding: 20px;
             margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
         }
-        input, button, select {
-            font-family: 'Tajawal', sans-serif;
-            padding: 10px 14px;
-            margin: 5px 0;
+
+        .auth-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #e9ecef;
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        input, select, button {
+            padding: 8px 12px;
             border: 1px solid #ced4da;
             border-radius: 6px;
-            font-size: 1em;
+            font-size: 0.95rem;
         }
+
         button {
-            background-color: var(--secondary-color);
+            background-color: var(--primary-light);
             color: white;
             border: none;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: 0.2s;
         }
-        button:hover {
-            background-color: var(--primary-color);
+        button:hover { background-color: var(--primary); }
+        .btn-danger { background-color: var(--danger); }
+        .btn-danger:hover { background-color: #c0392b; }
+
+        .admin-only { display: none; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
         }
-        .admin-section {
-            display: none;
-            background: #f1f8f5;
-            border-right: 4px solid var(--secondary-color);
+        th, td {
+            padding: 12px;
+            text-align: right;
+            border-bottom: 1px solid #e9ecef;
         }
+        th { background-color: #f8f9fa; color: var(--primary); }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: bold;
+        }
+        .badge-done { background: #d4edda; color: #155724; }
+        .badge-review { background: #fff3cd; color: #856404; }
+        .badge-pending { background: #f8d7da; color: #721c24; }
+
+        .flex-gap { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
     </style>
 
-    <!-- Firebase SDK v9 (Modular Imports via ES Modules) -->
+    <!-- Firebase SDK Modular -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
         import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
 
-        // إعدادات Firebase الحقيقية الخاصة بك
+        // إعدادات Firebase الحقيقية لمركز الإسراء
         const firebaseConfig = {
             apiKey: "AIzaSyB-FD_xhkWXsUujfB1KT91S1YLvxYvXbvA",
             authDomain: "quran-tracker-73ae0.firebaseapp.com",
@@ -95,58 +122,127 @@
             appId: "1:394580178177:web:c195fa68c288df767b1700"
         };
 
-        // تهيئة التطبيق والقاعدة
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
         const docRef = doc(db, "quranTracker", "data");
 
-        // كلمة مرور المسؤول (PIN) المحددة
+        // رمز الدخول للمسؤول
         const ADMIN_PIN = "1234";
+        let state = { students: [], groups: ["حلقة الفرقان", "حلقة النور"] };
+        let isAdmin = false;
 
-        window.checkAdminPin = function() {
-            const inputPin = document.getElementById("adminPinInput").value;
-            const errorElement = document.getElementById("loginError");
-            if (inputPin === ADMIN_PIN) {
-                document.getElementById("adminPanel").style.display = "block";
-                document.getElementById("loginSection").style.display = "none";
-                errorElement.innerText = "";
+        // تسجيل الدخول
+        window.loginAdmin = function() {
+            const pin = document.getElementById("pinInput").value;
+            if(pin === ADMIN_PIN) {
+                isAdmin = true;
+                document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'block');
+                document.getElementById('loginControls').style.display = 'none';
+                document.getElementById('logoutBtn').style.display = 'inline-block';
+                render();
             } else {
-                errorElement.innerText = "رمز الدخول غير صحيح! جرب 1234";
+                alert("رمز الدخول غير صحيح! جرب 1234");
             }
         };
 
-        // الاستماع للتحديثات الحية تلقائياً
-        onSnapshot(docRef, (docSnap) => {
-            const statusEl = document.getElementById("connectionStatus");
-            if (docSnap.exists()) {
-                statusEl.className = "status-bar status-online";
-                statusEl.innerText = "متصل ومتزامن مباشرة ✓";
-                const data = docSnap.data();
-                if(data.content) {
-                    document.getElementById("trackerContent").innerHTML = data.content;
-                }
+        window.logoutAdmin = function() {
+            isAdmin = false;
+            document.querySelectorAll('.admin-only').forEach(el => el.style.display = 'none');
+            document.getElementById('loginControls').style.display = 'flex';
+            document.getElementById('logoutBtn').style.display = 'none';
+            render();
+        };
+
+        // المزامنة الفورية مع Firebase
+        onSnapshot(docRef, (snapshot) => {
+            const statusEl = document.getElementById("dbStatus");
+            if(snapshot.exists()) {
+                state = snapshot.data();
+                statusEl.innerText = "متصل بالمزامنة الحية ✓";
+                statusEl.style.color = "#2a9d8f";
             } else {
-                statusEl.className = "status-bar status-online";
-                statusEl.innerText = "جاهز للبدء (قاعدة البيانات نشطة)";
-                // إنشاء المستند الأولي
-                setDoc(docRef, { content: "<p>مرحباً بكم في نظام متابعة حفظ القرآن الكريم - مركز الإسراء القرآني</p>" });
+                saveToFirebase(); // حفظ البيانات المبدئية
             }
-        }, (error) => {
-            const statusEl = document.getElementById("connectionStatus");
-            statusEl.className = "status-bar status-offline";
-            statusEl.innerText = "خطأ في الاتصال بقاعدة البيانات";
-            console.error("Firestore Error:", error);
+            render();
+        }, (err) => {
+            document.getElementById("dbStatus").innerText = "خطأ في الاتصال بالقاعدة";
         });
 
-        window.saveData = async function() {
-            const newContent = document.getElementById("adminContentInput").value;
+        async function saveToFirebase() {
             try {
-                await setDoc(docRef, { content: `<p>${newContent}</p>` }, { merge: true });
-                alert("تم حفظ البيانات وتحديثها فوراً للجميع!");
-            } catch (e) {
-                alert("حدث خطأ أثناء الحفظ: " + e.message);
+                await setDoc(docRef, state);
+            } catch(e) {
+                console.error("Save error", e);
+            }
+        }
+
+        // إضافة طالب جديد
+        window.addStudent = function() {
+            const name = document.getElementById("studentName").value.trim();
+            const group = document.getElementById("studentGroup").value;
+            if(!name) return alert("يرجى كتابة اسم الطالب");
+
+            state.students.push({
+                id: Date.now(),
+                name: name,
+                group: group,
+                hifz: "لم يبدأ",
+                review: "لا يوجد",
+                status: "مستمر"
+            });
+            document.getElementById("studentName").value = "";
+            saveToFirebase();
+        };
+
+        // تعديل حالة طالب
+        window.updateStudent = function(id, field, value) {
+            const student = state.students.find(s => s.id === id);
+            if(student) {
+                student[field] = value;
+                saveToFirebase();
             }
         };
+
+        // حذف طالب
+        window.deleteStudent = function(id) {
+            if(confirm("هل أنت تأكد من حذف هذا الطالب؟")) {
+                state.students = state.students.filter(s => s.id !== id);
+                saveToFirebase();
+            }
+        };
+
+        // عرض البيانات
+        function render() {
+            const tbody = document.getElementById("studentsTableBody");
+            const filterGroup = document.getElementById("filterGroup").value;
+            tbody.innerHTML = "";
+
+            const filtered = filterGroup === "الكل" ? state.students : state.students.filter(s => s.group === filterGroup);
+
+            if(filtered.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">لا توجد بيانات للعرض حالياً</td></tr>`;
+                return;
+            }
+
+            filtered.forEach(s => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td><strong>${s.name}</strong></td>
+                    <td>${s.group}</td>
+                    <td>
+                        ${isAdmin ? `<input type="text" value="${s.hifz}" onchange="updateStudent(${s.id}, 'hifz', this.value)">` : `<span>${s.hifz}</span>`}
+                    </td>
+                    <td>
+                        ${isAdmin ? `<input type="text" value="${s.review}" onchange="updateStudent(${s.id}, 'review', this.value)">` : `<span>${s.review}</span>`}
+                    </td>
+                    <td><span class="badge ${s.status === 'مستمر' ? 'badge-done' : 'badge-pending'}">${s.status}</span></td>
+                    ${isAdmin ? `<td><button class="btn-danger" onclick="deleteStudent(${s.id})">حذف</button></td>` : ''}
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        window.filterTable = render;
     </script>
 </head>
 <body>
@@ -154,30 +250,62 @@
 <div class="container">
     <header>
         <h1>مركز الإسراء القرآني</h1>
-        <p>نظام متابعة وتثبيت حفظ القرآن الكريم</p>
-        <div id="connectionStatus" class="status-bar status-offline">جاري الاتصال...</div>
+        <p>نظام متابعة وتقييم حفظ القرآن الكريم</p>
+        <div id="dbStatus" class="status-badge">جاري الاتصال بقاعدة البيانات...</div>
     </header>
 
-    <!-- عرض البيانات للطلاب والمشرفين -->
+    <!-- شريط الدخول والتحكم -->
+    <div class="auth-bar">
+        <div id="loginControls" class="flex-gap">
+            <span>دخول المسؤول:</span>
+            <input type="password" id="pinInput" placeholder="أدخل الرمز (1234)">
+            <button onclick="loginAdmin()">تسجيل الدخول</button>
+        </div>
+        <button id="logoutBtn" style="display:none;" onclick="logoutAdmin()">تسجيل الخروج من لوحة التحكم</button>
+    </div>
+
+    <!-- لوحة إعدادات المسؤول (إضافة طلاب) -->
+    <div class="card admin-only">
+        <h3>إضافة طالب جديد للحلقة</h3>
+        <div class="flex-gap">
+            <input type="text" id="studentName" placeholder="اسم الطالب الثلاثي">
+            <select id="studentGroup">
+                <option value="حلقة الفرقان">حلقة الفرقان</option>
+                <option value="حلقة النور">حلقة النور</option>
+            </select>
+            <button onclick="addStudent()">+ إضافة الطالب</button>
+        </div>
+    </div>
+
+    <!-- جدول عرض الطلاب والتسميع -->
     <div class="card">
-        <h3>جدول المتابعة والحفظ</h3>
-        <div id="trackerContent">جاري تحميل البيانات...</div>
-    </div>
+        <div class="flex-gap" style="justify-content: space-between; margin-bottom: 15px;">
+            <h3>سجل متابعة الطلاب</h3>
+            <div>
+                <label>تصفية حسب الحلقة: </label>
+                <select id="filterGroup" onchange="filterTable()">
+                    <option value="الكل">جميع الحلقات</option>
+                    <option value="حلقة الفرقان">حلقة الفرقان</option>
+                    <option value="حلقة النور">حلقة النور</option>
+                </select>
+            </div>
+        </div>
 
-    <!-- تسجيل دخول المسؤول -->
-    <div id="loginSection" class="card">
-        <h3>دخول المسؤول</h3>
-        <input type="password" id="adminPinInput" placeholder="أدخل رمز الدخول (1234)">
-        <button onclick="checkAdminPin()">تسجيل الدخول</button>
-        <p id="loginError" style="color: red; margin-top: 5px;"></p>
-    </div>
-
-    <!-- لوحة التحكم بالمسؤول -->
-    <div id="adminPanel" class="card admin-section">
-        <h3>لوحة تحكم المسؤول - تعديل المحتوى</h3>
-        <textarea id="adminContentInput" rows="4" style="width: 95%; margin-bottom: 10px;" placeholder="اكتب التحديث الجديد للمتابعة هنا..."></textarea>
-        <br>
-        <button onclick="saveData()">نشر وتحديث البيانات</button>
+        <table>
+            <thead>
+                <tr>
+                    <th>اسم الطالب</th>
+                    <th>الحلقة</th>
+                    <th>الحفظ الحالي</th>
+                    <th>المراجعة</th>
+                    <th>الحالة</th>
+                    <th class="admin-only">إجراءات</th>
+                </tr>
+            </thead>
+            <tbody id="studentsTableBody">
+                <!-- يتم تعبئة البيانات تلقائياً -->
+            </tbody>
+        </table>
     </div>
 </div>
 
