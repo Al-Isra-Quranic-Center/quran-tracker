@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>مركز الإسراء القرآني</title>
+<title>كشف حفظ القرآن الكريم</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -49,6 +50,7 @@
   }
   a{color:inherit;}
 
+  /* header */
   .topbar{
     background:var(--primary);
     color:#fff;
@@ -91,10 +93,12 @@
     padding:32px 20px 80px;
   }
 
+  /* Home */
   .hero{
     text-align:center;
     padding:48px 12px 36px;
   }
+  .hero-icon{margin-bottom:18px;}
   .hero h1{font-size:34px;color:var(--primary);}
   .hero p{color:var(--muted);max-width:480px;margin:12px auto 0;font-size:15.5px;}
   .choice-grid{
@@ -130,6 +134,7 @@
     padding-bottom:2px;cursor:pointer;background:none;border-top:none;border-left:none;border-right:none;font-size:15px;
   }
 
+  /* Cards / sections */
   .card{
     background:var(--surface);
     border:1px solid var(--border);
@@ -158,7 +163,10 @@
   .btn.secondary{background:var(--surface);color:var(--primary);border:1.5px solid var(--primary);}
   .btn.secondary:hover{background:var(--done-soft);}
   .btn.ghost{background:transparent;color:var(--muted);border:1px solid var(--border);}
+  .btn.danger{background:var(--danger);}
+  .btn.danger:hover{background:#8c3421;}
   .btn.small{padding:6px 12px;font-size:13px;border-radius:8px;}
+  .btn:disabled{opacity:.5;cursor:not-allowed;}
 
   .field{margin-bottom:14px;}
   .field label{display:block;font-size:13.5px;color:var(--muted);margin-bottom:5px;font-weight:500;}
@@ -166,7 +174,7 @@
     width:100%;
     padding:10px 12px;
     border:1.5px solid var(--border);
-    border-radius:99px;
+    border-radius:9px;
     background:#fff;
     color:var(--ink);
   }
@@ -186,7 +194,9 @@
   .name-btn{background:none;border:none;padding:0;font-size:16px;font-weight:700;color:var(--ink);cursor:pointer;text-align:right;}
   .name-btn:hover{color:var(--primary);}
 
-  .pill{display:inline-block;padding:3px 11px;border-radius:999px;font-size:12.5px;font-weight:700;}
+  .pill{
+    display:inline-block;padding:3px 11px;border-radius:999px;font-size:12.5px;font-weight:700;
+  }
   .pill.done{background:var(--done-soft);color:var(--done);}
   .pill.progress{background:var(--progress-soft);color:var(--progress-c);}
   .pill.notstarted{background:var(--notstarted-soft);color:var(--notstarted);}
@@ -206,25 +216,36 @@
   tbody tr:last-child td{border-bottom:none;}
   tbody tr:hover{background:#FAFAF7;}
   td select, td input{padding:6px 8px;border-radius:7px;border:1.3px solid var(--border);font-size:13.5px;}
+  .search-box{margin-bottom:12px;}
 
-  .empty{text-align:center;color:var(--muted);padding:36px 12px;font-size:14.5px;}
+  .empty{
+    text-align:center;color:var(--muted);padding:36px 12px;font-size:14.5px;
+  }
   .msg{padding:10px 14px;border-radius:9px;font-size:14px;margin-bottom:14px;}
   .msg.error{background:var(--danger-soft);color:var(--danger);}
+  .msg.ok{background:var(--done-soft);color:var(--done);}
 
   .top3{display:flex;gap:12px;flex-wrap:wrap;}
-  .top3 .slot{flex:1;min-width:150px;background:var(--gold-soft);border-radius:12px;padding:14px;text-align:center;}
+  .top3 .slot{
+    flex:1;min-width:150px;background:var(--gold-soft);border-radius:12px;padding:14px;text-align:center;
+  }
   .top3 .slot .rank{font-family:'Amiri',serif;font-size:22px;color:var(--gold);font-weight:700;}
   .top3 .slot .nm{font-weight:700;margin-top:4px;}
 
   .round-card{border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;}
   .round-card .rdate{color:var(--muted);font-size:13px;margin-bottom:10px;}
 
-  footer.tip{text-align:center;color:var(--muted);font-size:12.5px;margin-top:40px;}
+  footer.tip{
+    text-align:center;color:var(--muted);font-size:12.5px;margin-top:40px;
+  }
   .modal-backdrop{
     position:fixed;inset:0;background:rgba(18,53,36,.45);
     display:flex;align-items:center;justify-content:center;padding:20px;z-index:50;
   }
-  .modal{background:#fff;border-radius:var(--radius);padding:24px;max-width:420px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.25);}
+  .modal{
+    background:#fff;border-radius:var(--radius);padding:24px;max-width:420px;width:100%;
+    box-shadow:0 20px 60px rgba(0,0,0,.25);
+  }
   .modal h3{margin-bottom:14px;color:var(--primary);}
   .modal-actions{display:flex;gap:10px;margin-top:16px;justify-content:flex-start;}
 </style>
@@ -237,20 +258,18 @@
       <path d="M24 10c-6 4.5-9.5 10.5-9.5 17 0 6 4 11.3 9.5 13 5.5-1.7 9.5-7 9.5-13 0-6.5-3.5-12.5-9.5-17Z" fill="#123524"/>
     </svg>
     <div class="brand-text">
-      <div class="display">مركز الإسراء القرآني</div>
-      <small>نظام حفظ القرآن الكريم المباشر</small>
+      <div class="display">مركز الإسراء القراّني</div>
+      <small id="groupNameTag">نظام متابعة الحفظ</small>
     </div>
   </div>
   <nav id="topnav"></nav>
 </div>
 <main id="main"></main>
-<footer class="tip">مربوط بالسحابة متزامن آلياً عند جميع المستخدمين ✓</footer>
+<footer class="tip">البيانات محفوظة على هذا الجهاز/المتصفح فقط — استخدم "نسخة احتياطية" من لوحة المسؤول لنقلها أو حفظها.</footer>
 
-<script type="module">
-// إعداد Firebase - استبدل المفاتيح بمفاتيح مشروعك من Firebase Console
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-import { getFirestore, doc, onSnapshot, setDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-  
+<script>
+/* ---------- Data ---------- */
+
 const firebaseConfig = {
   apiKey: "AIzaSyB-FD_xhkWXsUujfB1KT91S1YLvxYvXbvA",
   authDomain: "quran-tracker-73ae0.firebaseapp.com",
@@ -259,16 +278,11 @@ const firebaseConfig = {
   messagingSenderId: "394580178177",
   appId: "1:394580178177:web:6caabed682f4aeb77b1700"
 };
-
-const app = initializeApp(firebaseConfig);
-const dbStore = getFirestore(app);
-const docRef = doc(dbStore, "quran_data", "main_store");
-
 const SURAHS = [
 ["الفاتحة",7],["البقرة",286],["آل عمران",200],["النساء",176],["المائدة",120],["الأنعام",165],
 ["الأعراف",206],["الأنفال",75],["التوبة",129],["يونس",109],["هود",123],["يوسف",111],
 ["الرعد",43],["إبراهيم",52],["الحجر",99],["النحل",128],["الإسراء",111],["الكهف",110],
-["مريم",98],["طه",135],["الأنبيـاء",112],["الحج",78],["المؤمنون",118],["النور",64],
+["مريم",98],["طه",135],["الأنبياء",112],["الحج",78],["المؤمنون",118],["النور",64],
 ["الفرقان",77],["الشعراء",227],["النمل",93],["القصص",88],["العنكبوت",69],["الروم",60],
 ["لقمان",34],["السجدة",30],["الأحزاب",73],["سبأ",54],["فاطر",45],["يس",83],
 ["الصافات",182],["ص",88],["الزمر",75],["غافر",85],["فصلت",54],["الشورى",53],
@@ -282,58 +296,32 @@ const SURAHS = [
 ["البروج",22],["الطارق",17],["الأعلى",19],["الغاشية",26],["الفجر",30],["البلد",20],
 ["الشمس",15],["الليل",21],["الضحى",11],["الشرح",8],["التين",8],["العلق",19],
 ["القدر",5],["البينة",8],["الزلزلة",8],["العاديات",11],["القارعة",11],["التكاثر",8],
-["العصر",3],["الهمزة",9],["الفيل",5],["قريش",4],["الماعون",7],["الكوثر",3],["الكافرون",6],
-["النصر",3],["المسد",5],["الإخلاص",4],["الفلق",5],["الناس",6]
+["العصر",3],["الهمزة",9],["الفيل",5],["قريش",4],["الماعون",7],["الكوثر",3],
+["الكافرون",6],["النصر",3],["المسد",5],["الإخلاص",4],["الفلق",5],["الناس",6]
 ].map((s,i)=>({idx:i, name:s[0], ayat:s[1]}));
 
 const GRADES = ["ممتاز","جيد جدًا","جيد","مقبول","ضعيف"];
 const STATUS = {not_started:"لم يبدأ", in_progress:"تحت الحفظ", done:"تم الحفظ"};
 
-// البيانات الافتراضية وتشمل جدول المسؤولين Admins
-const DEFAULT_DB = {
-  admins: [
-    { id: "a1", username: "admin", pass: "admin", name: "المسؤول الرئيسي" }
-  ],
-  groups: [
-    {
-      id: "grp1",
-      name: "حلقة الفرقان",
-      createdAt: "2026-01-10",
-      students: [
-        { id: "s1", name: "أحمد علي", joinDate: "2026-01-12", password: "123", progress: { 0: { status: "done", grade: "ممتاز" }, 1: { status: "in_progress", ayah: 150, grade: "جيد جدًا" } } },
-        { id: "s2", name: "عمر خالد", joinDate: "2026-01-15", password: "456", progress: { 0: { status: "done", grade: "ممتاز" } } }
-      ]
-    }
-  ], 
-  rounds: [
-    { id: "r1", name: "دورة الربيع", date: "2026-02-01", top: ["أحمد علي", "عمر خالد", "عبدالله محمد"] }
-  ] 
-};
-
-let db = DEFAULT_DB;
-let state = { view:"home", adminUser:null, groupId:null, studentId:null, err:null };
-
+/* ---------- Store ---------- */
+const DB_KEY = "quranTrackerDB_v1";
+function loadDB(){
+  const raw = localStorage.getItem(DB_KEY);
+  if(raw){ try{ return JSON.parse(raw); }catch(e){} }
+  const seed = {
+    admins:[{username:"admin", password:"admin123", name:"المشرف العام"}],
+    groups:[],
+    rounds:[]
+  };
+  localStorage.setItem(DB_KEY, JSON.stringify(seed));
+  return seed;
+}
+let db = loadDB();
+function save(){ localStorage.setItem(DB_KEY, JSON.stringify(db)); }
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
 
-// الحفظ بالسحابة مع تحديث اللحظة الفورية
-async function save(){
-  try{
-    await setDoc(docRef, db);
-  }catch(e){
-    console.error("خطأ في حفظ البيانات بالفيبربيس:", e);
-  }
-}
-
-// الاستماع المباشر للتغييرات
-onSnapshot(docRef, (snapshot) => {
-  if (snapshot.exists()) {
-    db = snapshot.data();
-    if(!db.admins) db.admins = DEFAULT_DB.admins;
-  } else {
-    save(); // إنشاء البيانات لأول مرة
-  }
-  render();
-});
+/* ---------- App state ---------- */
+let state = { view:"home", adminUser:null, groupId:null, studentId:null, publicPass:null, err:null };
 
 function go(view, extra){ state = Object.assign({view, err:null}, extra||{}, {adminUser:state.adminUser}); render(); }
 
@@ -346,13 +334,12 @@ function studentStats(student){
   return {done, inprog, notstarted};
 }
 
-/* ---------- Render Root ---------- */
+/* ---------- Render root ---------- */
 function render(){
   renderNav();
   const m = document.getElementById("main");
   m.innerHTML = "";
-
-  const views = {
+  const view = {
     home: renderHome,
     honor: renderHonor,
     publicGroups: renderPublicGroups,
@@ -365,9 +352,8 @@ function render(){
     adminStudent: renderAdminStudent,
     adminRounds: renderAdminRounds,
     adminAdmins: renderAdminAdmins,
-  };
-  
-  (views[state.view] || renderHome)(m);
+  }[state.view] || renderHome;
+  view(m);
 }
 
 function renderNav(){
@@ -381,15 +367,9 @@ function renderNav(){
   }
   if(state.adminUser){
     const dash = document.createElement("button");
-    dash.textContent = "المجموعات";
+    dash.textContent = "لوحة المسؤول";
     dash.onclick = ()=>go("adminHome");
     nav.appendChild(dash);
-
-    const adminsBtn = document.createElement("button");
-    adminsBtn.textContent = "إدارة المسؤولين";
-    adminsBtn.onclick = ()=>go("adminAdmins");
-    nav.appendChild(adminsBtn);
-
     const out = document.createElement("button");
     out.textContent = "تسجيل الخروج ("+state.adminUser.name+")";
     out.className="primary-cta";
@@ -408,18 +388,18 @@ function renderHome(m){
   m.innerHTML = `
     <div class="hero">
       <h1>متابعة حفظ القرآن الكريم</h1>
-      <p>سجّل تقدّم الطلاب، تابع التقديرات، وأدار المسؤولين بتزامن سحابي مباشر.</p>
+      <p>سجّل تقدّم الطلاب في الحفظ سورةً سورة، تابع تقديراتهم، وأعلن أوائل كل دورة — بمكان واحد.</p>
     </div>
     <div class="choice-grid">
       <div class="choice-card" id="cardAdmin">
         <div class="ico">${iconAdmin()}</div>
         <h3>دخول المسؤولين</h3>
-        <p>إدارة المجموعات، الطلاب، والمسؤولين والتعديل المباشر.</p>
+        <p>إدارة المجموعات والطلاب وتسجيل التقدّم والتقديرات.</p>
       </div>
       <div class="choice-card" id="cardPublic">
         <div class="ico">${iconSearch()}</div>
         <h3>متابعة طالب</h3>
-        <p>اختر المجموعة والطالب وأدخل كلمة السر لعرض التقرير.</p>
+        <p>اختر المجموعة والطالب، وأدخل كلمة سر الطالب لعرض تقريره.</p>
       </div>
     </div>
     <div style="text-align:center;">
@@ -435,9 +415,9 @@ function iconAdmin(){return `<svg width="22" height="22" viewBox="0 0 24 24" fil
 function iconSearch(){return `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>`;}
 function iconStar(){return `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.6 7.1.7-5.4 4.7 1.7 7-6.3-3.9L5.7 21l1.7-7-5.4-4.7 7.1-.7L12 2Z"/></svg>`;}
 
-/* ---------- Honor Board ---------- */
+/* ---------- Honor board (public) ---------- */
 function renderHonor(m){
-  const rounds = [...(db.rounds||[])].sort((a,b)=> (b.date||"").localeCompare(a.date||""));
+  const rounds = [...db.rounds].sort((a,b)=> (b.date||"").localeCompare(a.date||""));
   m.innerHTML = `
     <div class="breadcrumb"><a id="bHome">الرئيسية</a> / لوحة أوائل الدورات</div>
     <div class="section-head"><div><h2>أوائل الدورات</h2><div class="sub">سجل تكريم الأوائل في كل دورة</div></div></div>
@@ -462,7 +442,7 @@ function renderHonor(m){
   });
 }
 
-/* ---------- Public Views ---------- */
+/* ---------- Public: browse groups ---------- */
 function renderPublicGroups(m){
   m.innerHTML = `
     <div class="breadcrumb"><a id="bHome">الرئيسية</a> / متابعة طالب</div>
@@ -471,7 +451,7 @@ function renderPublicGroups(m){
   `;
   m.querySelector("#bHome").onclick=()=>go("home");
   const box = m.querySelector("#grpList");
-  if((db.groups||[]).length===0){ box.innerHTML=`<div class="empty">لا توجد مجموعات بعد.</div>`; return; }
+  if(db.groups.length===0){ box.innerHTML=`<div class="empty">لا توجد مجموعات مضافة بعد.</div>`; return; }
   db.groups.forEach(g=>{
     const row=document.createElement("div");
     row.className="list-row";
@@ -482,7 +462,7 @@ function renderPublicGroups(m){
 }
 
 function renderPublicStudents(m){
-  const g = (db.groups||[]).find(x=>x.id===state.groupId);
+  const g = db.groups.find(x=>x.id===state.groupId);
   if(!g){ go("publicGroups"); return; }
   m.innerHTML = `
     <div class="breadcrumb"><a id="bHome">الرئيسية</a> / <a id="bGrp">متابعة طالب</a> / ${esc(g.name)}</div>
@@ -492,7 +472,7 @@ function renderPublicStudents(m){
   m.querySelector("#bHome").onclick=()=>go("home");
   m.querySelector("#bGrp").onclick=()=>go("publicGroups");
   const box = m.querySelector("#stList");
-  if(g.students.length===0){ box.innerHTML=`<div class="empty">لا يوجد طلاب بالكلية.</div>`; return; }
+  if(g.students.length===0){ box.innerHTML=`<div class="empty">لا يوجد طلاب في هذه المجموعة بعد.</div>`; return; }
   g.students.forEach(s=>{
     const row=document.createElement("div");
     row.className="list-row";
@@ -503,7 +483,7 @@ function renderPublicStudents(m){
 }
 
 function renderPublicPassword(m){
-  const g = (db.groups||[]).find(x=>x.id===state.groupId);
+  const g = db.groups.find(x=>x.id===state.groupId);
   const s = g && g.students.find(x=>x.id===state.studentId);
   if(!g||!s){ go("publicGroups"); return; }
   m.innerHTML = `
@@ -527,7 +507,7 @@ function renderPublicPassword(m){
 }
 
 function renderPublicReport(m){
-  const g = (db.groups||[]).find(x=>x.id===state.groupId);
+  const g = db.groups.find(x=>x.id===state.groupId);
   const s = g && g.students.find(x=>x.id===state.studentId);
   if(!g||!s){ go("publicGroups"); return; }
   const stats = studentStats(s);
@@ -540,7 +520,7 @@ function renderPublicReport(m){
       <div class="stat"><div class="num">${stats.notstarted}</div><div class="lbl">سور متبقية</div></div>
     </div>
     <div class="card">
-      <div class="search-box" style="margin-bottom:12px;"><input id="srch" placeholder="ابحث عن سورة..." style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;"></div>
+      <div class="search-box"><input id="srch" placeholder="ابحث عن سورة..." style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;"></div>
       <div class="table-wrap"><table id="reportTable">
         <thead><tr><th>السورة</th><th>عدد الآيات</th><th>الحالة</th><th>وصل إلى آية</th><th>التقدير</th></tr></thead>
         <tbody></tbody>
@@ -571,7 +551,7 @@ function fillReportTable(m, s, filter){
   });
 }
 
-/* ---------- Admin Login ---------- */
+/* ---------- Admin login ---------- */
 function renderAdminLogin(m){
   m.innerHTML = `
     <div class="card" style="max-width:380px;margin:40px auto 0;">
@@ -585,52 +565,53 @@ function renderAdminLogin(m){
   const submit=()=>{
     const u = m.querySelector("#u").value.trim();
     const p = m.querySelector("#p").value;
-    const found = (db.admins||[]).find(a=> a.username === u && a.pass === p);
-    if(found){
-      state.adminUser = found;
-      go("adminHome");
-    } else {
-      state.err = "اسم المستخدم أو كلمة السر غير صحيحة.";
-      render();
-    }
+    const found = db.admins.find(a=>a.username===u && a.password===p);
+    if(found){ state.adminUser=found; go("adminHome"); }
+    else { state.err="اسم المستخدم أو كلمة السر غير صحيحة."; render(); }
   };
   m.querySelector("#go").onclick=submit;
   m.querySelector("#p").addEventListener("keydown", e=>{ if(e.key==="Enter") submit(); });
 }
 
-/* ---------- Admin Home ---------- */
+/* ---------- Admin home: groups ---------- */
 function renderAdminHome(m){
   if(!state.adminUser){ go("adminLogin"); return; }
   m.innerHTML = `
     <div class="section-head">
-      <div><h2>المجموعات</h2><div class="sub">مرحبًا ${esc(state.adminUser.name)} — إدارة المجموعات والطلاب</div></div>
+      <div><h2>المجموعات</h2><div class="sub">مرحبًا ${esc(state.adminUser.name)} — أضف مجموعة أو افتح إحداها</div></div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
         <button class="btn secondary" id="btnRounds">إدارة الدورات</button>
         <button class="btn secondary" id="btnAdmins">إدارة المسؤولين</button>
+        <button class="btn secondary" id="btnExport">نسخة احتياطية ⭳</button>
+        <button class="btn secondary" id="btnImport">استيراد نسخة ⭱</button>
       </div>
     </div>
     <div class="card">
       <div class="row2" style="align-items:end;margin-bottom:6px;">
-        <div class="field" style="margin-bottom:0;"><label>اسم المجموعة الجديدة</label><input id="newGrp" placeholder="مثال: حلقة الفجر"></div>
+        <div class="field" style="margin-bottom:0;"><label>اسم المجموعة الجديدة</label><input id="newGrp" placeholder="مثال: مجموعة الفجر"></div>
         <button class="btn" id="addGrp">إضافة مجموعة</button>
       </div>
     </div>
     <div id="groupsList"></div>
+    <input type="file" id="fileIn" accept="application/json" style="display:none;">
   `;
   m.querySelector("#btnRounds").onclick=()=>go("adminRounds");
   m.querySelector("#btnAdmins").onclick=()=>go("adminAdmins");
+  m.querySelector("#btnExport").onclick=exportBackup;
+  const fileIn = m.querySelector("#fileIn");
+  m.querySelector("#btnImport").onclick=()=>fileIn.click();
+  fileIn.onchange = importBackup;
   m.querySelector("#addGrp").onclick=()=>{
     const val = m.querySelector("#newGrp").value.trim();
     if(!val) return;
-    if(!db.groups) db.groups = [];
     db.groups.push({id:uid(), name:val, createdAt:new Date().toISOString().slice(0,10), students:[]});
-    save();
+    save(); go("adminHome");
   };
   const list = m.querySelector("#groupsList");
-  if((db.groups||[]).length===0){
-    list.innerHTML = `<div class="card empty">لا توجد مجموعات بعد.</div>`;
+  if(db.groups.length===0){
+    list.innerHTML = `<div class="card empty">لا توجد مجموعات بعد — أضف أول مجموعة أعلاه.</div>`;
   }
-  (db.groups||[]).forEach(g=>{
+  db.groups.forEach(g=>{
     const el=document.createElement("div");
     el.className="card list-row";
     el.innerHTML=`
@@ -643,101 +624,52 @@ function renderAdminHome(m){
     el.querySelector(".name-btn").onclick=()=>go("adminGroup",{groupId:g.id});
     el.querySelector("[data-del]").onclick=()=>{
       if(confirm(`حذف "${g.name}" وكل بيانات طلابها؟`)){
-        db.groups = db.groups.filter(x=>x.id!==g.id); save();
+        db.groups = db.groups.filter(x=>x.id!==g.id); save(); go("adminHome");
       }
     };
     list.appendChild(el);
   });
 }
 
-/* ---------- Admin: Manage Admins (جديد: إضافة وحذف مسؤول) ---------- */
-function renderAdminAdmins(m){
-  if(!state.adminUser){ go("adminLogin"); return; }
-  m.innerHTML = `
-    <div class="breadcrumb"><a id="bHome">لوحة المسؤول</a> / إدارة المسؤولين</div>
-    <div class="section-head">
-      <div><h2>إدارة حسابات المسؤولين</h2><div class="sub">يمكنك إضافة مسؤولين جديدين أو حذف حسابات قديمة</div></div>
-    </div>
-    
-    <div class="card">
-      <h3 style="margin-bottom:12px;color:var(--primary);">إضافة مسؤول جديد</h3>
-      <div class="row2">
-        <div class="field"><label>اسم المسؤول (للعرض)</label><input id="admName" placeholder="مثال: أ. محمد"></div>
-        <div class="field"><label>اسم المستخدم (لتسجيل الدخول)</label><input id="admUser"></div>
-      </div>
-      <div class="row2" style="align-items:end;">
-        <div class="field" style="margin-bottom:0;"><label>كلمة السر</label><input id="admPass" type="password"></div>
-        <button class="btn" id="addAdmBtn">إضافة المسؤول</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <h3 style="margin-bottom:12px;color:var(--primary);">قائمة المسؤولين</h3>
-      <div id="adminsList"></div>
-    </div>
-  `;
-  
-  m.querySelector("#bHome").onclick=()=>go("adminHome");
-  
-  m.querySelector("#addAdmBtn").onclick=()=>{
-    const name = m.querySelector("#admName").value.trim();
-    const username = m.querySelector("#admUser").value.trim();
-    const pass = m.querySelector("#admPass").value;
-
-    if(!name || !username || !pass){ alert("الرجاء ملء جميع الحقول."); return; }
-    if((db.admins||[]).some(a=> a.username === username)){ alert("اسم المستخدم موجود بالفعل."); return; }
-
-    if(!db.admins) db.admins = [];
-    db.admins.push({ id: uid(), name, username, pass });
-    save();
+function exportBackup(){
+  const blob = new Blob([JSON.stringify(db,null,2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href=url; a.download="quran-tracker-backup-"+new Date().toISOString().slice(0,10)+".json";
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+}
+function importBackup(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    try{
+      const data = JSON.parse(reader.result);
+      if(!data.groups || !data.admins) throw new Error("bad");
+      if(confirm("سيتم استبدال البيانات الحالية بالكامل بالنسخة المستوردة. متابعة؟")){
+        db = data; save(); go("adminHome");
+      }
+    }catch(err){ alert("ملف غير صالح."); }
   };
-
-  const list = m.querySelector("#adminsList");
-  if((db.admins||[]).length===0){
-    list.innerHTML = `<div class="empty">لا يوجد مسؤولون.</div>`;
-    return;
-  }
-
-  db.admins.forEach(a=>{
-    const row = document.createElement("div");
-    row.className = "list-row";
-    row.innerHTML = `
-      <div>
-        <strong>${esc(a.name)}</strong>
-        <div class="meta">اسم المستخدم: ${esc(a.username)}</div>
-      </div>
-      <button class="btn ghost small" style="color:var(--danger);" data-del>حذف الحساب</button>
-    `;
-
-    row.querySelector("[data-del]").onclick = ()=>{
-      if(db.admins.length <= 1){
-        alert("لا يمكنك حذف المسؤول الوحيد في النظام.");
-        return;
-      }
-      if(confirm(`هل أنت تأكد من حذف المسؤول "${a.name}"؟`)){
-        db.admins = db.admins.filter(x=> x.id !== a.id);
-        save();
-      }
-    };
-    list.appendChild(row);
-  });
+  reader.readAsText(file);
 }
 
-/* ---------- Admin Group & Students ---------- */
+/* ---------- Admin group: students ---------- */
 function renderAdminGroup(m){
   if(!state.adminUser){ go("adminLogin"); return; }
-  const g = (db.groups||[]).find(x=>x.id===state.groupId);
+  const g = db.groups.find(x=>x.id===state.groupId);
   if(!g){ go("adminHome"); return; }
   m.innerHTML = `
     <div class="breadcrumb"><a id="bHome">لوحة المسؤول</a> / ${esc(g.name)}</div>
-    <div class="section-head"><div><h2>${esc(g.name)}</h2><div class="sub">إدارة طلاب المجموعة</div></div></div>
+    <div class="section-head"><div><h2>${esc(g.name)}</h2><div class="sub">إدارة طلاب هذه المجموعة</div></div></div>
     <div class="card">
       <div class="row2">
         <div class="field"><label>اسم الطالب</label><input id="nName"></div>
         <div class="field"><label>تاريخ الالتحاق</label><input id="nDate" type="date"></div>
       </div>
       <div class="row2">
-        <div class="field"><label>كلمة سر الطالب</label><input id="nPass"></div>
+        <div class="field"><label>كلمة سر الطالب</label><input id="nPass" placeholder="لعرض تقريره لاحقًا"></div>
         <div class="field" style="display:flex;align-items:end;"><button class="btn" id="addSt" style="width:100%;">إضافة طالب</button></div>
       </div>
     </div>
@@ -750,7 +682,7 @@ function renderAdminGroup(m){
     const pass = m.querySelector("#nPass").value.trim();
     if(!name || !pass){ alert("الاسم وكلمة السر مطلوبان."); return; }
     g.students.push({id:uid(), name, joinDate:date, password:pass, progress:{}});
-    save();
+    save(); go("adminGroup",{groupId:g.id});
   };
   const list = m.querySelector("#stList");
   if(g.students.length===0){ list.innerHTML=`<div class="card empty">لا يوجد طلاب بعد.</div>`; }
@@ -768,16 +700,17 @@ function renderAdminGroup(m){
     el.querySelector(".name-btn").onclick=()=>go("adminStudent",{groupId:g.id, studentId:s.id});
     el.querySelector("[data-del]").onclick=()=>{
       if(confirm(`حذف الطالب "${s.name}"؟`)){
-        g.students = g.students.filter(x=>x.id!==s.id); save();
+        g.students = g.students.filter(x=>x.id!==s.id); save(); go("adminGroup",{groupId:g.id});
       }
     };
     list.appendChild(el);
   });
 }
 
+/* ---------- Admin student editor ---------- */
 function renderAdminStudent(m){
   if(!state.adminUser){ go("adminLogin"); return; }
-  const g = (db.groups||[]).find(x=>x.id===state.groupId);
+  const g = db.groups.find(x=>x.id===state.groupId);
   const s = g && g.students.find(x=>x.id===state.studentId);
   if(!g||!s){ go("adminHome"); return; }
   const stats = studentStats(s);
@@ -785,6 +718,7 @@ function renderAdminStudent(m){
     <div class="breadcrumb"><a id="bHome">لوحة المسؤول</a> / <a id="bGrp">${esc(g.name)}</a> / ${esc(s.name)}</div>
     <div class="section-head">
       <div><h2>${esc(s.name)}</h2><div class="sub">التحق بتاريخ ${esc(s.joinDate||"—")} · كلمة السر: ${esc(s.password)}</div></div>
+      <button class="btn secondary small" id="editInfo">تعديل البيانات</button>
     </div>
     <div class="stat-strip">
       <div class="stat"><div class="num">${stats.done}</div><div class="lbl">سورة محفوظة</div></div>
@@ -792,7 +726,7 @@ function renderAdminStudent(m){
       <div class="stat"><div class="num">${stats.notstarted}</div><div class="lbl">سور متبقية</div></div>
     </div>
     <div class="card">
-      <div class="search-box" style="margin-bottom:12px;"><input id="srch" placeholder="ابحث عن سورة..." style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;"></div>
+      <div class="search-box"><input id="srch" placeholder="ابحث عن سورة..." style="width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;"></div>
       <div class="table-wrap"><table id="editTable">
         <thead><tr><th>السورة</th><th>عدد الآيات</th><th>الحالة</th><th>وصل إلى آية</th><th>التقدير</th></tr></thead>
         <tbody></tbody>
@@ -801,6 +735,7 @@ function renderAdminStudent(m){
   `;
   m.querySelector("#bHome").onclick=()=>go("adminHome");
   m.querySelector("#bGrp").onclick=()=>go("adminGroup",{groupId:g.id});
+  m.querySelector("#editInfo").onclick=()=>openEditInfoModal(g,s);
   fillEditTable(m, g, s);
   m.querySelector("#srch").addEventListener("input", e=> fillEditTable(m, g, s, e.target.value));
 }
@@ -835,11 +770,14 @@ function fillEditTable(m, g, s, filter){
     const ayahIn = tr.querySelector('[data-role="ayah"]');
     const gradeSel = tr.querySelector('[data-role="grade"]');
     const update = ()=>{
+      const status = statusSel.value;
       s.progress[sur.idx] = {
-        status: statusSel.value,
-        ayah: statusSel.value==="in_progress" ? (ayahIn.value||"") : "",
+        status,
+        ayah: status==="in_progress" ? (ayahIn.value||"") : "",
         grade: gradeSel.value
       };
+      ayahIn.disabled = status!=="in_progress";
+      if(status!=="in_progress") ayahIn.value="";
       save();
     };
     statusSel.onchange=update;
@@ -849,17 +787,41 @@ function fillEditTable(m, g, s, filter){
   });
 }
 
-/* ---------- Admin Rounds ---------- */
+function openEditInfoModal(g, s){
+  const back=document.createElement("div");
+  back.className="modal-backdrop";
+  back.innerHTML=`
+    <div class="modal">
+      <h3>تعديل بيانات الطالب</h3>
+      <div class="field"><label>الاسم</label><input id="mName" value="${escAttr(s.name)}"></div>
+      <div class="field"><label>تاريخ الالتحاق</label><input id="mDate" type="date" value="${escAttr(s.joinDate||"")}"></div>
+      <div class="field"><label>كلمة السر</label><input id="mPass" value="${escAttr(s.password)}"></div>
+      <div class="modal-actions">
+        <button class="btn" id="mSave">حفظ</button>
+        <button class="btn ghost" id="mCancel">إلغاء</button>
+      </div>
+    </div>`;
+  document.body.appendChild(back);
+  back.querySelector("#mCancel").onclick=()=>back.remove();
+  back.querySelector("#mSave").onclick=()=>{
+    s.name = back.querySelector("#mName").value.trim() || s.name;
+    s.joinDate = back.querySelector("#mDate").value;
+    s.password = back.querySelector("#mPass").value.trim() || s.password;
+    save(); back.remove(); go("adminStudent",{groupId:g.id, studentId:s.id});
+  };
+}
+
+/* ---------- Admin rounds ---------- */
 function renderAdminRounds(m){
   if(!state.adminUser){ go("adminLogin"); return; }
   const allStudents = [];
-  (db.groups||[]).forEach(g=> g.students.forEach(s=> allStudents.push(s.name)));
+  db.groups.forEach(g=> g.students.forEach(s=> allStudents.push(s.name)));
   m.innerHTML = `
     <div class="breadcrumb"><a id="bHome">لوحة المسؤول</a> / إدارة الدورات</div>
-    <div class="section-head"><div><h2>دورات الأوائل</h2><div class="sub">سجّل أوائل كل دورة</div></div></div>
+    <div class="section-head"><div><h2>دورات الأوائل</h2><div class="sub">سجّل أوائل كل دورة يدويًا</div></div></div>
     <div class="card">
       <div class="row2">
-        <div class="field"><label>اسم الدورة</label><input id="rName"></div>
+        <div class="field"><label>اسم الدورة</label><input id="rName" placeholder="مثال: دورة الفصل الأول"></div>
         <div class="field"><label>التاريخ</label><input id="rDate" type="date"></div>
       </div>
       <div class="row2" style="grid-template-columns:1fr 1fr 1fr;">
@@ -876,16 +838,15 @@ function renderAdminRounds(m){
   m.querySelector("#addRound").onclick=()=>{
     const name = m.querySelector("#rName").value.trim();
     if(!name){ alert("اسم الدورة مطلوب."); return; }
-    if(!db.rounds) db.rounds = [];
     db.rounds.push({
       id:uid(), name,
       date:m.querySelector("#rDate").value,
       top:[m.querySelector("#r1").value.trim(), m.querySelector("#r2").value.trim(), m.querySelector("#r3").value.trim()]
     });
-    save();
+    save(); go("adminRounds");
   };
   const list = m.querySelector("#roundsAdminList");
-  const rounds = [...(db.rounds||[])].sort((a,b)=>(b.date||"").localeCompare(a.date||""));
+  const rounds = [...db.rounds].sort((a,b)=>(b.date||"").localeCompare(a.date||""));
   if(rounds.length===0){ list.innerHTML=`<div class="card empty">لا توجد دورات بعد.</div>`; }
   rounds.forEach(r=>{
     const el=document.createElement("div");
@@ -901,12 +862,61 @@ function renderAdminRounds(m){
       </div>
     `;
     el.querySelector("[data-del]").onclick=()=>{
-      if(confirm("حذف هذه الدورة؟")){ db.rounds=db.rounds.filter(x=>x.id!==r.id); save(); }
+      if(confirm("حذف هذه الدورة؟")){ db.rounds=db.rounds.filter(x=>x.id!==r.id); save(); go("adminRounds"); }
     };
     list.appendChild(el);
   });
 }
 
+/* ---------- Admin: manage admins ---------- */
+function renderAdminAdmins(m){
+  if(!state.adminUser){ go("adminLogin"); return; }
+  m.innerHTML = `
+    <div class="breadcrumb"><a id="bHome">لوحة المسؤول</a> / إدارة المسؤولين</div>
+    <div class="section-head"><div><h2>حسابات المسؤولين</h2><div class="sub">كل مسؤول له اسم مستخدم وكلمة سر خاصة به</div></div></div>
+    <div class="card">
+      <div class="row2">
+        <div class="field"><label>الاسم الظاهر</label><input id="aName"></div>
+        <div class="field"><label>اسم المستخدم</label><input id="aUser"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>كلمة السر</label><input id="aPass"></div>
+        <div class="field" style="display:flex;align-items:end;"><button class="btn" id="addAdm" style="width:100%;">إضافة مسؤول</button></div>
+      </div>
+    </div>
+    <div class="card" id="admList"></div>
+  `;
+  m.querySelector("#bHome").onclick=()=>go("adminHome");
+  m.querySelector("#addAdm").onclick=()=>{
+    const name=m.querySelector("#aName").value.trim();
+    const user=m.querySelector("#aUser").value.trim();
+    const pass=m.querySelector("#aPass").value.trim();
+    if(!name||!user||!pass){ alert("جميع الحقول مطلوبة."); return; }
+    if(db.admins.some(a=>a.username===user)){ alert("اسم المستخدم موجود مسبقًا."); return; }
+    db.admins.push({username:user, password:pass, name});
+    save(); go("adminAdmins");
+  };
+  const list = m.querySelector("#admList");
+  db.admins.forEach(a=>{
+    const row=document.createElement("div");
+    row.className="list-row";
+    row.innerHTML=`
+      <div><b>${esc(a.name)}</b><div class="meta">${esc(a.username)}</div></div>
+      <button class="btn ghost small" data-del ${db.admins.length<=1?"disabled":""}>حذف</button>
+    `;
+    row.querySelector("[data-del]").onclick=()=>{
+      if(db.admins.length<=1) return;
+      if(confirm(`حذف حساب "${a.name}"؟`)){
+        db.admins = db.admins.filter(x=>x.username!==a.username);
+        if(state.adminUser.username===a.username) state.adminUser=db.admins[0];
+        save(); go("adminAdmins");
+      }
+    };
+    list.appendChild(row);
+  });
+}
+
+/* ---------- utils ---------- */
 function esc(str){ return String(str==null?"":str).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
 function escAttr(str){ return esc(str); }
 
