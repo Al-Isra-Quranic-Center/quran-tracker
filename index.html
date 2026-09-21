@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>كشف حفظ القرآن الكريم</title>
+<title>مركز الإسراء القرآني</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
@@ -97,6 +97,7 @@
     text-align:center;
     padding:48px 12px 36px;
   }
+  .hero-icon{margin-bottom:18px;}
   .hero h1{font-size:34px;color:var(--primary);}
   .hero p{color:var(--muted);max-width:480px;margin:12px auto 0;font-size:15.5px;}
   .choice-grid{
@@ -172,7 +173,6 @@
     width:100%;
     padding:10px 12px;
     border:1.5px solid var(--border);
-    border-radius:99px;
     border-radius:9px;
     background:#fff;
     color:var(--ink);
@@ -257,21 +257,25 @@
       <path d="M24 10c-6 4.5-9.5 10.5-9.5 17 0 6 4 11.3 9.5 13 5.5-1.7 9.5-7 9.5-13 0-6.5-3.5-12.5-9.5-17Z" fill="#123524"/>
     </svg>
     <div class="brand-text">
-      <div class="display">كشف حفظ القرآن الكريم</div>
-      <small id="groupNameTag">نظام متابعة الحفظ</small>
+      <div class="display">مركز الإسراء القرآني</div>
+      <small id="groupNameTag">نظام حفظ القرآن الكريم</small>
     </div>
   </div>
   <nav id="topnav"></nav>
 </div>
 <main id="main"></main>
-<footer class="tip" id="syncStatus">جاري الاتصال بـ Firebase...</footer>
+<footer class="tip" id="footTip">جاري الاتصال بقاعدة البيانات...</footer>
 
-<!-- Firebase SDKs -->
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-  import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+/* ============================================================
+   إعداد Firebase — عدّل القيم الخمس/الست التالية فقط
+   خذها من: console.firebase.google.com > إعدادات المشروع > تطبيقات الويب
+   ============================================================ */
+import { initializeApp, deleteApp } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js';
+import { getFirestore, doc, collection, onSnapshot, setDoc, getDoc, deleteDoc } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-firestore.js';
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut, updatePassword } from 'https://www.gstatic.com/firebasejs/12.8.0/firebase-auth.js';
 
-  const firebaseConfig = {
+const firebaseConfig = {
     apiKey: "AIzaSyB-FD_xhkWXsUujfB1KT91S1YLvxYvXbvA",
     authDomain: "quran-tracker-73ae0.firebaseapp.com",
     projectId: "quran-tracker-73ae0",
@@ -279,40 +283,8 @@
     messagingSenderId: "394580178177",
     appId: "1:394580178177:web:c195fa68c288df767b1700"
   };
+/* ============================================================ */
 
-  const app = initializeApp(firebaseConfig);
-  const dbStore = getFirestore(app);
-  const docRef = doc(dbStore, "quranTracker", "data");
-
-  // Sync Data
-  window.saveDBToFirebase = async function() {
-    try {
-      await setDoc(docRef, db);
-    } catch (e) {
-      console.error("خطأ في الحفظ:", e);
-    }
-  };
-
-  onSnapshot(docRef, (docSnap) => {
-    const footer = document.getElementById("syncStatus");
-    if (docSnap.exists()) {
-      db = docSnap.data();
-      footer.innerHTML = "متصل ومتزامن مباشرة ✓";
-      footer.style.color = "var(--done)";
-    } else {
-      saveDBToFirebase();
-      footer.innerHTML = "متصل ومتزامن مباشرة ✓ (تم إنشاء الحافظة الأولى)";
-      footer.style.color = "var(--done)";
-    }
-    render();
-  }, (err) => {
-    const footer = document.getElementById("syncStatus");
-    footer.innerHTML = "خطأ في الاتصال بالقاعدة — تأكد من إعداد القواعد (Rules)";
-    footer.style.color = "var(--danger)";
-  });
-</script>
-
-<script>
 /* ---------- Data ---------- */
 const SURAHS = [
 ["الفاتحة",7],["البقرة",286],["آل عمران",200],["النساء",176],["المائدة",120],["الأنعام",165],
@@ -339,18 +311,78 @@ const SURAHS = [
 const GRADES = ["ممتاز","جيد جدًا","جيد","مقبول","ضعيف"];
 const STATUS = {not_started:"لم يبدأ", in_progress:"تحت الحفظ", done:"تم الحفظ"};
 
-let db = {
-  admins:[{username:"admin", password:"admin123", name:"المشرف العام"}],
-  groups:[],
-  rounds:[]
-};
+/* ---------- Store (Firebase Firestore — مباشر ومتزامن بين كل الأجهزة) ---------- */
+const SEED_DB = { groups:[], rounds:[] };
+const EMAIL_DOMAIN = "@quran-tracker.app"; // نحوّل اسم المستخدم إلى بريد وهمي يفهمه Firebase Auth
+function usernameToEmail(u){ return u.trim().toLowerCase().replace(/\s+/g,"")+EMAIL_DOMAIN; }
 
-function save(){
-  if(window.saveDBToFirebase) window.saveDBToFirebase();
+let db = null;
+let firestoreReady = false;
+let firestoreErr = null;
+let fsDocRef = null;
+let fsInstance = null;
+let authInstance = null;
+let authRestoring = true;   // true حتى يخبرنا Firebase إن كان في جلسة محفوظة
+let adminsList = [];        // {uid, username, name} — من مجموعة admins (سماح/صلاحيات)
+
+function isConfigured(){
+  return firebaseConfig.apiKey && !String(firebaseConfig.apiKey).includes("ضع_");
 }
 
+function initFirebase(){
+  if(!isConfigured()){ render(); return; }
+  try{
+    const app = initializeApp(firebaseConfig);
+    fsInstance = getFirestore(app);
+    authInstance = getAuth(app);
+    fsDocRef = doc(fsInstance, "quranTracker", "data");
+
+    onSnapshot(fsDocRef, snap=>{
+      if(snap.exists()){
+        db = snap.data();
+      } else {
+        db = JSON.parse(JSON.stringify(SEED_DB));
+        setDoc(fsDocRef, db).catch(()=>{});
+      }
+      firestoreReady = true; firestoreErr = null;
+      render();
+    }, err=>{
+      firestoreErr = err && err.message ? err.message : "تعذّر الاتصال";
+      render();
+    });
+
+    onSnapshot(collection(fsInstance,"admins"), snap=>{
+      adminsList = snap.docs.map(d=>({uid:d.id, ...d.data()}));
+      render();
+    });
+
+    onAuthStateChanged(authInstance, async user=>{
+      authRestoring = false;
+      if(user){
+        const aSnap = await getDoc(doc(fsInstance,"admins",user.uid));
+        if(aSnap.exists()){
+          state.adminUser = {uid:user.uid, username:aSnap.data().username, name:aSnap.data().name};
+        } else {
+          // حساب مسجّل بـ Firebase لكن بلا صلاحية مسؤول (مثلاً أُزيلت صلاحيته) — سجّل خروجه
+          state.adminUser = null;
+          if(user) signOut(authInstance).catch(()=>{});
+        }
+      } else {
+        state.adminUser = null;
+      }
+      render();
+    });
+  }catch(e){
+    firestoreErr = e && e.message ? e.message : "تعذّر إعداد Firebase";
+    render();
+  }
+}
+
+function save(){
+  if(!fsDocRef || !db) return;
+  setDoc(fsDocRef, db).catch(e=> console.error("save failed", e));
+}
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
-function esc(str){ return String(str||'').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
 
 /* ---------- App state ---------- */
 let state = { view:"home", adminUser:null, groupId:null, studentId:null, publicPass:null, err:null };
@@ -369,9 +401,14 @@ function studentStats(student){
 /* ---------- Render root ---------- */
 function render(){
   renderNav();
+  updateFootTip();
   const m = document.getElementById("main");
-  if(!m) return;
   m.innerHTML = "";
+
+  if(!isConfigured()){ m.innerHTML = setupScreenHTML(); return; }
+  if(firestoreErr){ m.innerHTML = errorScreenHTML(); return; }
+  if(!firestoreReady || authRestoring){ m.innerHTML = `<div class="card empty">جاري تحميل البيانات من قاعدة البيانات المباشرة...</div>`; return; }
+
   const view = {
     home: renderHome,
     honor: renderHonor,
@@ -391,7 +428,6 @@ function render(){
 
 function renderNav(){
   const nav = document.getElementById("topnav");
-  if(!nav) return;
   nav.innerHTML = "";
   if(state.view!=="home"){
     const home = document.createElement("button");
@@ -407,7 +443,7 @@ function renderNav(){
     const out = document.createElement("button");
     out.textContent = "تسجيل الخروج ("+state.adminUser.name+")";
     out.className="primary-cta";
-    out.onclick = ()=>{ state.adminUser=null; go("home"); };
+    out.onclick = ()=>{ signOut(authInstance).catch(()=>{}); state.adminUser=null; go("home"); };
     nav.appendChild(out);
   } else if(state.view!=="adminLogin"){
     const login = document.createElement("button");
@@ -415,6 +451,39 @@ function renderNav(){
     login.onclick = ()=>go("adminLogin");
     nav.appendChild(login);
   }
+}
+
+function updateFootTip(){
+  const el = document.getElementById("footTip");
+  if(!el) return;
+  if(!isConfigured()) el.textContent = "لم يتم إعداد قاعدة البيانات بعد — أكمل الخطوات في الأعلى.";
+  else if(firestoreErr) el.textContent = "تعذّر الاتصال بقاعدة البيانات: "+firestoreErr;
+  else if(!firestoreReady) el.textContent = "جاري الاتصال بقاعدة البيانات...";
+  else el.textContent = "متصل ومتزامن مباشرة عبر الإنترنت ✓ — البيانات مشتركة بين كل الأجهزة.";
+}
+
+function setupScreenHTML(){
+  return `
+    <div class="card" style="max-width:600px;margin:30px auto;">
+      <div class="section-head"><h2>خطوة إعداد لمرة واحدة</h2></div>
+      <p style="color:var(--muted);font-size:14.5px;">
+        هذا الملف جاهز ليعمل بشكل مباشر (Live) عبر الإنترنت مع حماية دخول حقيقية، لكن ينقصه ربطه بمشروع Firebase.
+        افتح ملف الصفحة بمحرر نصوص، ابحث عن <code>firebaseConfig</code> بأعلى الكود، واستبدل القيم الست
+        بالقيم التي تحصل عليها من مشروعك على Firebase، ثم فعّل تسجيل الدخول بالبريد/كلمة السر وأنشئ أول حساب مسؤول
+        (اتبع الخطوات الكاملة التي أرسلتها لك في المحادثة).
+      </p>
+      <p style="color:var(--muted);font-size:14.5px;">بعد التعديل، احفظ الملف وأعد فتحه — سيتصل تلقائيًا.</p>
+    </div>
+  `;
+}
+
+function errorScreenHTML(){
+  return `
+    <div class="card msg error" style="max-width:560px;margin:30px auto;">
+      تعذّر الاتصال بقاعدة البيانات: ${esc(firestoreErr)}<br>
+      تأكد أن بيانات <code>firebaseConfig</code> صحيحة، وأن Firestore مُفعّل وقواعده تسمح بالقراءة/الكتابة، ثم أعد تحميل الصفحة.
+    </div>
+  `;
 }
 
 /* ---------- Home ---------- */
@@ -449,9 +518,9 @@ function iconAdmin(){return `<svg width="22" height="22" viewBox="0 0 24 24" fil
 function iconSearch(){return `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>`;}
 function iconStar(){return `<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.6 7.1.7-5.4 4.7 1.7 7-6.3-3.9L5.7 21l1.7-7-5.4-4.7 7.1-.7L12 2Z"/></svg>`;}
 
-/* ---------- Honor board ---------- */
+/* ---------- Honor board (public) ---------- */
 function renderHonor(m){
-  const rounds = [...(db.rounds||[])].sort((a,b)=> (b.date||"").localeCompare(a.date||""));
+  const rounds = [...db.rounds].sort((a,b)=> (b.date||"").localeCompare(a.date||""));
   m.innerHTML = `
     <div class="breadcrumb"><a id="bHome">الرئيسية</a> / لوحة أوائل الدورات</div>
     <div class="section-head"><div><h2>أوائل الدورات</h2><div class="sub">سجل تكريم الأوائل في كل دورة</div></div></div>
@@ -468,7 +537,7 @@ function renderHonor(m){
       <div class="rdate">${esc(r.date||"")}</div>
       <div class="top3">
         ${["الأول","الثاني","الثالث"].map((lbl,i)=>`
-          <div class="slot"><div class="rank">${lbl}</div><div class="nm">${esc((r.top&&r.top[i])||"—")}</div></div>
+          <div class="slot"><div class="rank">${lbl}</div><div class="nm">${esc(r.top[i]||"—")}</div></div>
         `).join("")}
       </div>
     `;
@@ -476,7 +545,7 @@ function renderHonor(m){
   });
 }
 
-/* ---------- Public views ---------- */
+/* ---------- Public: browse groups ---------- */
 function renderPublicGroups(m){
   m.innerHTML = `
     <div class="breadcrumb"><a id="bHome">الرئيسية</a> / متابعة طالب</div>
@@ -485,18 +554,18 @@ function renderPublicGroups(m){
   `;
   m.querySelector("#bHome").onclick=()=>go("home");
   const box = m.querySelector("#grpList");
-  if(!db.groups || db.groups.length===0){ box.innerHTML=`<div class="empty">لا توجد مجموعات مضافة بعد.</div>`; return; }
+  if(db.groups.length===0){ box.innerHTML=`<div class="empty">لا توجد مجموعات مضافة بعد.</div>`; return; }
   db.groups.forEach(g=>{
     const row=document.createElement("div");
     row.className="list-row";
-    row.innerHTML=`<button class="name-btn">${esc(g.name)}</button><span class="meta">${g.students?g.students.length:0} طالب</span>`;
+    row.innerHTML=`<button class="name-btn">${esc(g.name)}</button><span class="meta">${g.students.length} طالب</span>`;
     row.querySelector("button").onclick=()=> go("publicStudents", {groupId:g.id});
     box.appendChild(row);
   });
 }
 
 function renderPublicStudents(m){
-  const g = db.groups && db.groups.find(x=>x.id===state.groupId);
+  const g = db.groups.find(x=>x.id===state.groupId);
   if(!g){ go("publicGroups"); return; }
   m.innerHTML = `
     <div class="breadcrumb"><a id="bHome">الرئيسية</a> / <a id="bGrp">متابعة طالب</a> / ${esc(g.name)}</div>
@@ -506,7 +575,7 @@ function renderPublicStudents(m){
   m.querySelector("#bHome").onclick=()=>go("home");
   m.querySelector("#bGrp").onclick=()=>go("publicGroups");
   const box = m.querySelector("#stList");
-  if(!g.students || g.students.length===0){ box.innerHTML=`<div class="empty">لا يوجد طلاب في هذه المجموعة بعد.</div>`; return; }
+  if(g.students.length===0){ box.innerHTML=`<div class="empty">لا يوجد طلاب في هذه المجموعة بعد.</div>`; return; }
   g.students.forEach(s=>{
     const row=document.createElement("div");
     row.className="list-row";
@@ -517,8 +586,8 @@ function renderPublicStudents(m){
 }
 
 function renderPublicPassword(m){
-  const g = db.groups && db.groups.find(x=>x.id===state.groupId);
-  const s = g && g.students && g.students.find(x=>x.id===state.studentId);
+  const g = db.groups.find(x=>x.id===state.groupId);
+  const s = g && g.students.find(x=>x.id===state.studentId);
   if(!g||!s){ go("publicGroups"); return; }
   m.innerHTML = `
     <div class="breadcrumb"><a id="bHome">الرئيسية</a> / <a id="bGrp">متابعة طالب</a> / ${esc(g.name)} / ${esc(s.name)}</div>
@@ -541,8 +610,8 @@ function renderPublicPassword(m){
 }
 
 function renderPublicReport(m){
-  const g = db.groups && db.groups.find(x=>x.id===state.groupId);
-  const s = g && g.students && g.students.find(x=>x.id===state.studentId);
+  const g = db.groups.find(x=>x.id===state.groupId);
+  const s = g && g.students.find(x=>x.id===state.studentId);
   if(!g||!s){ go("publicGroups"); return; }
   const stats = studentStats(s);
   m.innerHTML = `
@@ -568,7 +637,6 @@ function renderPublicReport(m){
 
 function fillReportTable(m, s, filter){
   const tbody = m.querySelector("#reportTable tbody");
-  if(!tbody) return;
   tbody.innerHTML="";
   const f = (filter||"").trim();
   SURAHS.filter(sur=> !f || sur.name.includes(f)).forEach(sur=>{
@@ -586,7 +654,7 @@ function fillReportTable(m, s, filter){
   });
 }
 
-/* ---------- Admin Login ---------- */
+/* ---------- Admin login ---------- */
 function renderAdminLogin(m){
   m.innerHTML = `
     <div class="card" style="max-width:380px;margin:40px auto 0;">
@@ -594,21 +662,30 @@ function renderAdminLogin(m){
       ${state.err? `<div class="msg error">${esc(state.err)}</div>`:""}
       <div class="field"><label>اسم المستخدم</label><input id="u" autofocus></div>
       <div class="field"><label>كلمة السر</label><input id="p" type="password"></div>
-      <button class="btn" id="go" style="width:100%;">دخول</button>
+      <button class="btn" id="go" style="width:100%;" ${state.busy?"disabled":""}>${state.busy?"جاري الدخول...":"دخول"}</button>
     </div>
   `;
-  const submit=()=>{
+  const submit=async ()=>{
     const u = m.querySelector("#u").value.trim();
     const p = m.querySelector("#p").value;
-    const found = (db.admins||[]).find(a=>a.username===u && a.password===p);
-    if(found){ state.adminUser=found; go("adminHome"); }
-    else { state.err="اسم المستخدم أو كلمة السر غير صحيحة."; render(); }
+    if(!u||!p){ state.err="أدخل اسم المستخدم وكلمة السر."; render(); return; }
+    state.busy = true; render();
+    try{
+      await signInWithEmailAndPassword(authInstance, usernameToEmail(u), p);
+      // onAuthStateChanged سيتكفّل بتحديث state.adminUser والانتقال يصير تلقائيًا أدناه
+      state.busy = false;
+      go("adminHome");
+    }catch(err){
+      state.busy = false;
+      state.err = "اسم المستخدم أو كلمة السر غير صحيحة.";
+      render();
+    }
   };
   m.querySelector("#go").onclick=submit;
   m.querySelector("#p").addEventListener("keydown", e=>{ if(e.key==="Enter") submit(); });
 }
 
-/* ---------- Admin Home ---------- */
+/* ---------- Admin home: groups ---------- */
 function renderAdminHome(m){
   if(!state.adminUser){ go("adminLogin"); return; }
   m.innerHTML = `
@@ -617,6 +694,8 @@ function renderAdminHome(m){
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
         <button class="btn secondary" id="btnRounds">إدارة الدورات</button>
         <button class="btn secondary" id="btnAdmins">إدارة المسؤولين</button>
+        <button class="btn secondary" id="btnExport">نسخة احتياطية ⭳</button>
+        <button class="btn secondary" id="btnImport">استيراد نسخة ⭱</button>
       </div>
     </div>
     <div class="card">
@@ -626,20 +705,23 @@ function renderAdminHome(m){
       </div>
     </div>
     <div id="groupsList"></div>
+    <input type="file" id="fileIn" accept="application/json" style="display:none;">
   `;
   m.querySelector("#btnRounds").onclick=()=>go("adminRounds");
   m.querySelector("#btnAdmins").onclick=()=>go("adminAdmins");
+  m.querySelector("#btnExport").onclick=exportBackup;
+  const fileIn = m.querySelector("#fileIn");
+  m.querySelector("#btnImport").onclick=()=>fileIn.click();
+  fileIn.onchange = importBackup;
   m.querySelector("#addGrp").onclick=()=>{
     const val = m.querySelector("#newGrp").value.trim();
     if(!val) return;
-    if(!db.groups) db.groups = [];
     db.groups.push({id:uid(), name:val, createdAt:new Date().toISOString().slice(0,10), students:[]});
     save(); go("adminHome");
   };
   const list = m.querySelector("#groupsList");
-  if(!db.groups || db.groups.length===0){
+  if(db.groups.length===0){
     list.innerHTML = `<div class="card empty">لا توجد مجموعات بعد — أضف أول مجموعة أعلاه.</div>`;
-    return;
   }
   db.groups.forEach(g=>{
     const el=document.createElement("div");
@@ -647,7 +729,7 @@ function renderAdminHome(m){
     el.innerHTML=`
       <div>
         <button class="name-btn">${esc(g.name)}</button>
-        <div class="meta">${g.students?g.students.length:0} طالب · أُنشئت ${esc(g.createdAt||"")}</div>
+        <div class="meta">${g.students.length} طالب · أُنشئت ${esc(g.createdAt||"")}</div>
       </div>
       <button class="btn ghost small" data-del>حذف المجموعة</button>
     `;
@@ -661,10 +743,34 @@ function renderAdminHome(m){
   });
 }
 
-/* ---------- Admin Group ---------- */
+function exportBackup(){
+  const blob = new Blob([JSON.stringify(db,null,2)], {type:"application/json"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href=url; a.download="quran-tracker-backup-"+new Date().toISOString().slice(0,10)+".json";
+  document.body.appendChild(a); a.click(); a.remove();
+  URL.revokeObjectURL(url);
+}
+function importBackup(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = ()=>{
+    try{
+      const data = JSON.parse(reader.result);
+      if(!data.groups) throw new Error("bad");
+      if(confirm("سيتم استبدال بيانات المجموعات والطلاب والدورات الحالية بالكامل بالنسخة المستوردة (حسابات المسؤولين لا تتأثر). متابعة؟")){
+        db = {groups:data.groups||[], rounds:data.rounds||[]}; save(); go("adminHome");
+      }
+    }catch(err){ alert("ملف غير صالح."); }
+  };
+  reader.readAsText(file);
+}
+
+/* ---------- Admin group: students ---------- */
 function renderAdminGroup(m){
   if(!state.adminUser){ go("adminLogin"); return; }
-  const g = db.groups && db.groups.find(x=>x.id===state.groupId);
+  const g = db.groups.find(x=>x.id===state.groupId);
   if(!g){ go("adminHome"); return; }
   m.innerHTML = `
     <div class="breadcrumb"><a id="bHome">لوحة المسؤول</a> / ${esc(g.name)}</div>
@@ -687,12 +793,11 @@ function renderAdminGroup(m){
     const date = m.querySelector("#nDate").value;
     const pass = m.querySelector("#nPass").value.trim();
     if(!name || !pass){ alert("الاسم وكلمة السر مطلوبان."); return; }
-    if(!g.students) g.students = [];
     g.students.push({id:uid(), name, joinDate:date, password:pass, progress:{}});
     save(); go("adminGroup",{groupId:g.id});
   };
   const list = m.querySelector("#stList");
-  if(!g.students || g.students.length===0){ list.innerHTML=`<div class="card empty">لا يوجد طلاب بعد.</div>`; return; }
+  if(g.students.length===0){ list.innerHTML=`<div class="card empty">لا يوجد طلاب بعد.</div>`; }
   g.students.forEach(s=>{
     const stats = studentStats(s);
     const el=document.createElement("div");
@@ -714,11 +819,11 @@ function renderAdminGroup(m){
   });
 }
 
-/* ---------- Admin Student Editor ---------- */
+/* ---------- Admin student editor ---------- */
 function renderAdminStudent(m){
   if(!state.adminUser){ go("adminLogin"); return; }
-  const g = db.groups && db.groups.find(x=>x.id===state.groupId);
-  const s = g && g.students && g.students.find(x=>x.id===state.studentId);
+  const g = db.groups.find(x=>x.id===state.groupId);
+  const s = g && g.students.find(x=>x.id===state.studentId);
   if(!g||!s){ go("adminHome"); return; }
   const stats = studentStats(s);
   m.innerHTML = `
@@ -749,7 +854,6 @@ function renderAdminStudent(m){
 
 function fillEditTable(m, g, s, filter){
   const tbody = m.querySelector("#editTable tbody");
-  if(!tbody) return;
   tbody.innerHTML="";
   const f=(filter||"").trim();
   SURAHS.filter(sur=> !f || sur.name.includes(f)).forEach(sur=>{
@@ -774,167 +878,205 @@ function fillEditTable(m, g, s, filter){
         </select>
       </td>
     `;
-    
     const statusSel = tr.querySelector('[data-role="status"]');
     const ayahIn = tr.querySelector('[data-role="ayah"]');
     const gradeSel = tr.querySelector('[data-role="grade"]');
-
-    statusSel.onchange = ()=>{
-      const val = statusSel.value;
-      if(!s.progress[sur.idx]) s.progress[sur.idx] = {};
-      s.progress[sur.idx].status = val;
-      if(val==="in_progress"){
-        ayahIn.disabled = false;
-      } else {
-        ayahIn.disabled = true;
-        if(val==="done") s.progress[sur.idx].ayah = sur.ayat;
-        else s.progress[sur.idx].ayah = "";
-      }
+    const update = ()=>{
+      const status = statusSel.value;
+      s.progress[sur.idx] = {
+        status,
+        ayah: status==="in_progress" ? (ayahIn.value||"") : "",
+        grade: gradeSel.value
+      };
+      ayahIn.disabled = status!=="in_progress";
+      if(status!=="in_progress") ayahIn.value="";
       save();
     };
-
-    ayahIn.onchange = ()=>{
-      if(!s.progress[sur.idx]) s.progress[sur.idx] = {};
-      s.progress[sur.idx].ayah = ayahIn.value;
-      save();
-    };
-
-    gradeSel.onchange = ()=>{
-      if(!s.progress[sur.idx]) s.progress[sur.idx] = {};
-      s.progress[sur.idx].grade = gradeSel.value;
-      save();
-    };
-
+    statusSel.onchange=update;
+    ayahIn.onchange=update;
+    gradeSel.onchange=update;
     tbody.appendChild(tr);
   });
 }
 
 function openEditInfoModal(g, s){
-  const modal = document.createElement("div");
-  modal.className = "modal-backdrop";
-  modal.innerHTML = `
+  const back=document.createElement("div");
+  back.className="modal-backdrop";
+  back.innerHTML=`
     <div class="modal">
       <h3>تعديل بيانات الطالب</h3>
-      <div class="field"><label>الاسم</label><input id="mName" value="${esc(s.name)}"></div>
-      <div class="field"><label>تاريخ الالتحاق</label><input id="mDate" type="date" value="${esc(s.joinDate||"")}"></div>
-      <div class="field"><label>كلمة السر</label><input id="mPass" value="${esc(s.password)}"></div>
+      <div class="field"><label>الاسم</label><input id="mName" value="${escAttr(s.name)}"></div>
+      <div class="field"><label>تاريخ الالتحاق</label><input id="mDate" type="date" value="${escAttr(s.joinDate||"")}"></div>
+      <div class="field"><label>كلمة السر</label><input id="mPass" value="${escAttr(s.password)}"></div>
       <div class="modal-actions">
         <button class="btn" id="mSave">حفظ</button>
         <button class="btn ghost" id="mCancel">إلغاء</button>
       </div>
-    </div>
-  `;
-  document.body.appendChild(modal);
-  modal.querySelector("#mCancel").onclick = ()=> modal.remove();
-  modal.querySelector("#mSave").onclick = ()=>{
-    s.name = modal.querySelector("#mName").value.trim();
-    s.joinDate = modal.querySelector("#mDate").value;
-    s.password = modal.querySelector("#mPass").value.trim();
-    save(); modal.remove(); go("adminStudent",{groupId:g.id, studentId:s.id});
+    </div>`;
+  document.body.appendChild(back);
+  back.querySelector("#mCancel").onclick=()=>back.remove();
+  back.querySelector("#mSave").onclick=()=>{
+    s.name = back.querySelector("#mName").value.trim() || s.name;
+    s.joinDate = back.querySelector("#mDate").value;
+    s.password = back.querySelector("#mPass").value.trim() || s.password;
+    save(); back.remove(); go("adminStudent",{groupId:g.id, studentId:s.id});
   };
 }
 
-/* ---------- Admin Rounds ---------- */
+/* ---------- Admin rounds ---------- */
 function renderAdminRounds(m){
   if(!state.adminUser){ go("adminLogin"); return; }
+  const allStudents = [];
+  db.groups.forEach(g=> g.students.forEach(s=> allStudents.push(s.name)));
   m.innerHTML = `
     <div class="breadcrumb"><a id="bHome">لوحة المسؤول</a> / إدارة الدورات</div>
-    <div class="section-head"><div><h2>إدارة الدورات والأوائل</h2></div></div>
+    <div class="section-head"><div><h2>دورات الأوائل</h2><div class="sub">سجّل أوائل كل دورة يدويًا</div></div></div>
     <div class="card">
-      <div class="field"><label>اسم الدورة</label><input id="rName" placeholder="مثال: الدورة الصيفية 2026"></div>
-      <div class="field"><label>التاريخ</label><input id="rDate" type="date"></div>
       <div class="row2">
-        <div class="field"><label>الأول</label><input id="rTop1"></div>
-        <div class="field"><label>الثاني</label><input id="rTop2"></div>
+        <div class="field"><label>اسم الدورة</label><input id="rName" placeholder="مثال: دورة الفصل الأول"></div>
+        <div class="field"><label>التاريخ</label><input id="rDate" type="date"></div>
       </div>
-      <div class="field"><label>الثالث</label><input id="rTop3"></div>
-      <button class="btn" id="addR">إضافة الدورة</button>
+      <div class="row2" style="grid-template-columns:1fr 1fr 1fr;">
+        <div class="field"><label>الأول</label><input id="r1" list="studNames"></div>
+        <div class="field"><label>الثاني</label><input id="r2" list="studNames"></div>
+        <div class="field"><label>الثالث</label><input id="r3" list="studNames"></div>
+      </div>
+      <datalist id="studNames">${allStudents.map(n=>`<option value="${escAttr(n)}">`).join("")}</datalist>
+      <button class="btn" id="addRound">إضافة الدورة</button>
     </div>
-    <div id="rList"></div>
+    <div id="roundsAdminList"></div>
   `;
   m.querySelector("#bHome").onclick=()=>go("adminHome");
-  m.querySelector("#addR").onclick=()=>{
+  m.querySelector("#addRound").onclick=()=>{
     const name = m.querySelector("#rName").value.trim();
-    const date = m.querySelector("#rDate").value;
-    const top1 = m.querySelector("#rTop1").value.trim();
-    const top2 = m.querySelector("#rTop2").value.trim();
-    const top3 = m.querySelector("#rTop3").value.trim();
     if(!name){ alert("اسم الدورة مطلوب."); return; }
-    if(!db.rounds) db.rounds = [];
-    db.rounds.push({id:uid(), name, date, top:[top1, top2, top3]});
+    db.rounds.push({
+      id:uid(), name,
+      date:m.querySelector("#rDate").value,
+      top:[m.querySelector("#r1").value.trim(), m.querySelector("#r2").value.trim(), m.querySelector("#r3").value.trim()]
+    });
     save(); go("adminRounds");
   };
-  const list = m.querySelector("#rList");
-  if(!db.rounds || db.rounds.length===0){ list.innerHTML = `<div class="card empty">لا توجد دورات بعد.</div>`; return; }
-  db.rounds.forEach(r=>{
-    const el = document.createElement("div");
-    el.className = "card list-row";
-    el.innerHTML = `
-      <div>
-        <strong>${esc(r.name)}</strong> (${esc(r.date||"")})
-        <div class="meta">الأوائل: ${r.top.map(x=>esc(x||"—")).join(" - ")}</div>
+  const list = m.querySelector("#roundsAdminList");
+  const rounds = [...db.rounds].sort((a,b)=>(b.date||"").localeCompare(a.date||""));
+  if(rounds.length===0){ list.innerHTML=`<div class="card empty">لا توجد دورات بعد.</div>`; }
+  rounds.forEach(r=>{
+    const el=document.createElement("div");
+    el.className="card round-card";
+    el.innerHTML=`
+      <div class="section-head" style="margin-bottom:8px;">
+        <h3 style="color:var(--primary);font-size:16.5px;">${esc(r.name)}</h3>
+        <button class="btn ghost small" data-del>حذف</button>
       </div>
-      <button class="btn ghost small" data-del>حذف</button>
+      <div class="rdate">${esc(r.date||"")}</div>
+      <div class="top3">
+        ${["الأول","الثاني","الثالث"].map((lbl,i)=>`<div class="slot"><div class="rank">${lbl}</div><div class="nm">${esc(r.top[i]||"—")}</div></div>`).join("")}
+      </div>
     `;
     el.querySelector("[data-del]").onclick=()=>{
-      if(confirm(`حذف دورة "${r.name}"؟`)){
-        db.rounds = db.rounds.filter(x=>x.id!==r.id); save(); go("adminRounds");
-      }
+      if(confirm("حذف هذه الدورة؟")){ db.rounds=db.rounds.filter(x=>x.id!==r.id); save(); go("adminRounds"); }
     };
     list.appendChild(el);
   });
 }
 
-/* ---------- Admin Admins ---------- */
+/* ---------- Admin: manage admins ---------- */
 function renderAdminAdmins(m){
   if(!state.adminUser){ go("adminLogin"); return; }
   m.innerHTML = `
     <div class="breadcrumb"><a id="bHome">لوحة المسؤول</a> / إدارة المسؤولين</div>
-    <div class="section-head"><div><h2>المسؤولين</h2></div></div>
+    <div class="section-head"><div><h2>حسابات المسؤولين</h2><div class="sub">محمية بتسجيل دخول حقيقي عبر Firebase — كل مسؤول له حساب وكلمة سر خاصة فيه</div></div></div>
+
     <div class="card">
+      <div class="section-head" style="margin-bottom:10px;"><h3 style="font-size:16px;color:var(--primary);">تغيير كلمة سري</h3></div>
+      ${state.pwMsg? `<div class="msg ${state.pwErr?'error':'ok'}">${esc(state.pwMsg)}</div>`:""}
       <div class="row2">
-        <div class="field"><label>اسم المسؤول</label><input id="aName"></div>
+        <div class="field"><label>كلمة سر جديدة</label><input id="myNewPass" type="password"></div>
+        <div class="field" style="display:flex;align-items:end;"><button class="btn secondary" id="changePass" style="width:100%;">تحديث كلمة السر</button></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="section-head" style="margin-bottom:10px;"><h3 style="font-size:16px;color:var(--primary);">إضافة مسؤول جديد</h3></div>
+      ${state.addAdmErr? `<div class="msg error">${esc(state.addAdmErr)}</div>`:""}
+      <div class="row2">
+        <div class="field"><label>الاسم الظاهر</label><input id="aName"></div>
         <div class="field"><label>اسم المستخدم</label><input id="aUser"></div>
       </div>
       <div class="row2">
-        <div class="field"><label>كلمة السر</label><input id="aPass" type="password"></div>
-        <div class="field" style="display:flex;align-items:end;"><button class="btn" id="addA" style="width:100%;">إضافة مسؤول</button></div>
+        <div class="field"><label>كلمة السر (6 أحرف فأكثر)</label><input id="aPass"></div>
+        <div class="field" style="display:flex;align-items:end;"><button class="btn" id="addAdm" style="width:100%;" ${state.busy?"disabled":""}>${state.busy?"جاري الإضافة...":"إضافة مسؤول"}</button></div>
       </div>
     </div>
-    <div id="aList"></div>
+    <div class="card" id="admList"></div>
   `;
   m.querySelector("#bHome").onclick=()=>go("adminHome");
-  m.querySelector("#addA").onclick=()=>{
-    const name = m.querySelector("#aName").value.trim();
-    const username = m.querySelector("#aUser").value.trim();
-    const password = m.querySelector("#aPass").value;
-    if(!name || !username || !password){ alert("جميع الحقول مطلوبة."); return; }
-    if(!db.admins) db.admins = [];
-    db.admins.push({name, username, password});
-    save(); go("adminAdmins");
-  };
-  const list = m.querySelector("#aList");
-  (db.admins||[]).forEach(a=>{
-    const el = document.createElement("div");
-    el.className = "card list-row";
-    el.innerHTML = `
-      <div>
-        <strong>${esc(a.name)}</strong> (${esc(a.username)})
-      </div>
-      ${db.admins.length>1? `<button class="btn ghost small" data-del>حذف</button>`:""}
-    `;
-    const delBtn = el.querySelector("[data-del]");
-    if(delBtn){
-      delBtn.onclick=()=>{
-        if(confirm(`حذف المسؤول "${a.name}"؟`)){
-          db.admins = db.admins.filter(x=>x.username!==a.username); save(); go("adminAdmins");
-        }
-      };
+
+  m.querySelector("#changePass").onclick=async ()=>{
+    const np = m.querySelector("#myNewPass").value;
+    if(!np || np.length<6){ state.pwErr=true; state.pwMsg="كلمة السر يجب أن تكون 6 أحرف على الأقل."; render(); return; }
+    try{
+      await updatePassword(authInstance.currentUser, np);
+      state.pwErr=false; state.pwMsg="تم تحديث كلمة السر بنجاح.";
+    }catch(err){
+      state.pwErr=true;
+      state.pwMsg = err.code==="auth/requires-recent-login"
+        ? "لأسباب أمنية، سجّل خروج وادخل من جديد ثم أعد المحاولة فورًا."
+        : "تعذّر تحديث كلمة السر.";
     }
-    list.appendChild(el);
+    render();
+  };
+
+  m.querySelector("#addAdm").onclick=async ()=>{
+    const name=m.querySelector("#aName").value.trim();
+    const user=m.querySelector("#aUser").value.trim();
+    const pass=m.querySelector("#aPass").value;
+    state.addAdmErr=null;
+    if(!name||!user||!pass){ state.addAdmErr="جميع الحقول مطلوبة."; render(); return; }
+    if(pass.length<6){ state.addAdmErr="كلمة السر يجب أن تكون 6 أحرف على الأقل."; render(); return; }
+    if(adminsList.some(a=>a.username===user)){ state.addAdmErr="اسم المستخدم موجود مسبقًا."; render(); return; }
+    state.busy=true; render();
+    // ننشئ الحساب على "تطبيق فرعي" مؤقت حتى لا يتم تسجيل خروجك أنت واستبدالك بالحساب الجديد
+    const secondaryApp = initializeApp(firebaseConfig, "secondary-"+Date.now());
+    const secondaryAuth = getAuth(secondaryApp);
+    try{
+      const cred = await createUserWithEmailAndPassword(secondaryAuth, usernameToEmail(user), pass);
+      const newUid = cred.user.uid;
+      await signOut(secondaryAuth);
+      await setDoc(doc(fsInstance,"admins",newUid), {username:user, name});
+    }catch(err){
+      state.addAdmErr = err.code==="auth/email-already-in-use" ? "اسم المستخدم مستخدم مسبقًا." : "تعذّر إنشاء الحساب.";
+    }finally{
+      await deleteApp(secondaryApp).catch(()=>{});
+      state.busy=false; render();
+    }
+  };
+
+  const list = m.querySelector("#admList");
+  if(adminsList.length===0){ list.innerHTML = `<div class="empty">لا يوجد مسؤولون بعد.</div>`; }
+  adminsList.forEach(a=>{
+    const row=document.createElement("div");
+    row.className="list-row";
+    row.innerHTML=`
+      <div><b>${esc(a.name)}</b><div class="meta">${esc(a.username)}</div></div>
+      <button class="btn ghost small" data-del ${adminsList.length<=1?"disabled":""}>إزالة الصلاحية</button>
+    `;
+    row.querySelector("[data-del]").onclick=async ()=>{
+      if(adminsList.length<=1) return;
+      if(confirm(`إزالة صلاحية المسؤول عن "${a.name}"؟ لن يعود بإمكانه الدخول للوحة المسؤول.`)){
+        await deleteDoc(doc(fsInstance,"admins",a.uid)).catch(()=>{});
+        if(state.adminUser.uid===a.uid){ signOut(authInstance).catch(()=>{}); go("home"); }
+      }
+    };
+    list.appendChild(row);
   });
 }
 
+/* ---------- utils ---------- */
+function esc(str){ return String(str==null?"":str).replace(/[&<>"']/g, c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function escAttr(str){ return esc(str); }
+
+initFirebase();
 render();
 </script>
 </body>
